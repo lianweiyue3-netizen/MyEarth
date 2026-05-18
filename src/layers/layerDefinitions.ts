@@ -1,0 +1,50 @@
+import type {
+  LayerAvailability,
+  LayerId,
+  QualityProfile,
+  VisualModeDefinition
+} from "../shared/domain";
+
+export type CesiumLikeViewer = {
+  scene?: {
+    globe?: Record<string, unknown>;
+    primitives?: {
+      add: (item: unknown) => unknown;
+      remove: (item: unknown) => boolean;
+    };
+    requestRender?: () => void;
+  };
+  imageryLayers?: {
+    addImageryProvider?: (provider: unknown) => unknown;
+    remove?: (layer: unknown, destroy?: boolean) => boolean;
+  };
+  terrainProvider?: unknown;
+  __myEarthCesium?: Record<string, any>;
+};
+
+export type LayerAdapterContext = {
+  viewer: CesiumLikeViewer;
+  quality: QualityProfile;
+  reducedMotion: boolean;
+};
+
+export type CesiumLayerAdapter = {
+  id: LayerId;
+  setVisible(context: LayerAdapterContext, visible: boolean): Promise<LayerAvailability>;
+  applyVisualMode?(
+    context: LayerAdapterContext,
+    mode: VisualModeDefinition
+  ): Promise<LayerAvailability>;
+  applyQuality?(context: LayerAdapterContext): Promise<LayerAvailability>;
+  dispose?(viewer: CesiumLikeViewer): void;
+};
+
+export const available: LayerAvailability = { status: "available" };
+
+export function disabled(reason: string): LayerAvailability {
+  return { status: "disabled", reason };
+}
+
+export function failed(reason: string, recoverable = true): LayerAvailability {
+  return { status: "failed", reason, recoverable };
+}

@@ -1,0 +1,59 @@
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scene);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 42% 46%, rgb(41 95 154 / 48%) 0 9rem, transparent 9.3rem),
+    radial-gradient(circle at 52% 52%, #102848 0 11rem, #06111f 11.2rem 13rem, transparent 13.2rem),
+    #020611;
+}
+
+.container {
+  position: absolute;
+  inset: 0;
+}
+
+.demoEarth {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-image:
+    radial-gradient(circle at 20% 18%, rgb(255 255 255 / 90%) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 70% 35%, rgb(255 255 255 / 70%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 45% 75%, rgb(255 255 255 / 60%) 0 1px, transparent 1.5px);
+  background-size: 180px 180px, 260px 260px, 320px 320px;
+}
+
+.planet {
+  width: min(58vmin, 36rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, rgb(115 194 255 / 95%) 0 10%, transparent 10.5%),
+    radial-gradient(circle at 58% 45%, rgb(53 128 76 / 90%) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 42% 58%, rgb(218 212 151 / 85%) 0 11%, transparent 11.5%),
+    radial-gradient(circle at 34% 30%, #2f89d2 0, #0e3f78 48%, #07162b 71%);
+  box-shadow:
+    0 0 52px rgb(79 184 255 / 45%),
+    inset -7rem -2rem 7rem rgb(0 0 0 / 55%);
+}
+
+.missingToken {
+  position: absolute;
+  left: max(1rem, env(safe-area-inset-left));
+  bottom: max(3.5rem, env(safe-area-inset-bottom));
+  max-width: min(30rem, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-panel);
+}
+
+.missingToken p {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+}

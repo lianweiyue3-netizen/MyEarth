@@ -1,0 +1,28 @@
+.tour {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.buttons button {
+  min-height: 2.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: rgb(8 22 41 / 76%);
+}
+
+.primary {
+  background: rgb(50 133 180 / 52%) !important;
+}
+
+.status {
+  min-height: 1rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}

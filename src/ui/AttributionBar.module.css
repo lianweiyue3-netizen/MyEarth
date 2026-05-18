@@ -1,0 +1,20 @@
+.bar {
+  position: fixed;
+  right: max(0.6rem, env(safe-area-inset-right));
+  bottom: max(0.45rem, env(safe-area-inset-bottom));
+  z-index: var(--z-attribution);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-width: calc(100vw - 1.2rem);
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgb(158 198 255 / 18%);
+  border-radius: var(--radius-control);
+  background: rgb(2 9 19 / 82%);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+}
+
+.bar a {
+  color: var(--color-accent-strong);
+}

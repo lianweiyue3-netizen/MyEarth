@@ -1,0 +1,50 @@
+.search {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.input {
+  min-height: 2.5rem;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  padding: 0 0.75rem;
+  background: rgb(2 9 19 / 78%);
+  color: var(--color-text);
+}
+
+.listbox {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: grid;
+  max-height: 15rem;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel-strong);
+  box-shadow: var(--shadow-panel);
+}
+
+.option {
+  min-height: 2.3rem;
+  border: 0;
+  border-bottom: 1px solid rgb(158 198 255 / 15%);
+  background: transparent;
+  text-align: left;
+  padding: 0 0.7rem;
+}
+
+.active {
+  background: rgb(50 133 180 / 48%);
+}
+
+.status {
+  min-height: 1rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}

@@ -1,0 +1,75 @@
+.panel {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.collapse {
+  display: none;
+  min-height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: rgb(8 22 41 / 76%);
+}
+
+.body {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.summary,
+.fact,
+.section p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.facts {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 1.1rem;
+  margin: 0;
+}
+
+.layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.layers button {
+  min-height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: rgb(127 211 255 / 14%);
+}
+
+.disclaimer {
+  margin: 0;
+  color: var(--color-warning);
+}
+
+@media (max-width: 760px) {
+  .collapse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.65rem;
+  }
+
+  .collapsed {
+    display: none;
+  }
+}

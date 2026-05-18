@@ -1,0 +1,49 @@
+.fallback {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: #020611;
+}
+
+.panel {
+  width: min(42rem, 100%);
+  padding: 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-panel-strong);
+  box-shadow: var(--shadow-panel);
+}
+
+.panel h1,
+.panel h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.panel p {
+  color: var(--color-muted);
+}
+
+.status {
+  padding: 0.75rem;
+  border: 1px solid rgb(255 210 122 / 42%);
+  border-radius: var(--radius-control);
+  color: var(--color-warning);
+  background: rgb(56 42 13 / 50%);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.actions button {
+  min-height: 2.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: rgb(127 211 255 / 16%);
+}
