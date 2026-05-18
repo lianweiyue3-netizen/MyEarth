@@ -2,7 +2,9 @@
 
 ## Current State
 
-The project has been scaffolded as a Vite React TypeScript app using CesiumJS, CSS Modules, Jotai, Vitest, React Testing Library, and Playwright.
+Renewed on 2026-05-19 after the latest continuation pass.
+
+The project is a Vite React TypeScript app using CesiumJS, CSS Modules, Jotai, Vitest, React Testing Library, and Playwright. All implementation module task files are complete in `tasks/progress.md`; only visual QA milestones remain unchecked.
 
 Implemented baseline:
 
@@ -22,9 +24,19 @@ Implemented baseline:
 - README deployment/setup documentation.
 - Expanded core service, Cesium scene, app shell, and UI component coverage.
 
+## Latest Session Notes
+
+- Read `HANDOFF.md`, `prompt.md`, and `tasks/progress.md`.
+- Confirmed there is no root `progress.md`; the active progress tracker is `tasks/progress.md`.
+- Confirmed `VITE_CESIUM_ION_TOKEN` is not set in the current environment.
+- Ran a production build successfully.
+- Started a local preview at `http://127.0.0.1:4173`, opened the app in the browser, and confirmed the missing-token fallback scene renders with the command overlay instead of a blank page.
+- Stopped the local preview server before handoff.
+- Did not update `tasks/progress.md` because full desktop/tablet/mobile visual QA was not completed.
+
 ## Verification Last Run
 
-Passing commands:
+Previously passing full checks:
 
 ```text
 npm run typecheck
@@ -34,7 +46,7 @@ npm run build
 npm run test:e2e
 ```
 
-Latest observed results:
+Previously observed results:
 
 - TypeScript: passed.
 - ESLint: passed.
@@ -42,7 +54,15 @@ Latest observed results:
 - Vite production build: passed.
 - Playwright: 15 tests passed across desktop, tablet, and mobile Chromium projects.
 
-Playwright Chromium was installed with:
+Latest command from this session:
+
+```text
+npm run build
+```
+
+Result: passed.
+
+Playwright Chromium was installed earlier with:
 
 ```text
 npx playwright install chromium
@@ -50,7 +70,7 @@ npx playwright install chromium
 
 ## Progress Tracker
 
-`tasks/progress.md` now marks all module task files complete after reconciling implementation and tests.
+`tasks/progress.md` marks all module task files complete after reconciling implementation and tests.
 
 Still unchecked in `tasks/progress.md`:
 
@@ -58,7 +78,7 @@ Still unchecked in `tasks/progress.md`:
 - Tablet visual QA passes.
 - Mobile visual QA passes.
 
-Those QA milestones should be completed with screenshot review, preferably against a real `VITE_CESIUM_ION_TOKEN` so Cesium terrain, imagery, and optional layers can be visually inspected.
+These QA milestones still need screenshot review. Prefer running with a real `VITE_CESIUM_ION_TOKEN` so Cesium terrain, imagery, geocoding, Black Marble night lights, OSM Buildings, and optional layers can be visually inspected. Without a token, only the required fallback experience can be visually reviewed.
 
 ## Important Constraints
 
@@ -77,11 +97,12 @@ Those QA milestones should be completed with screenshot review, preferably again
 
 ## Suggested Next Work
 
-1. Run the app with a real `VITE_CESIUM_ION_TOKEN` and visually inspect desktop, tablet, and mobile.
-2. Capture screenshots for the remaining visual QA milestones.
-3. Test real Cesium ion services: terrain, geocoding, Black Marble, and OSM Buildings.
-4. Confirm the RainViewer radar layer against live metadata when the external API is reachable.
-5. If visual QA passes, mark the three remaining visual QA milestones in `tasks/progress.md`.
+1. Set `VITE_CESIUM_ION_TOKEN` in the environment for a live Cesium QA pass.
+2. Run the app and capture desktop, tablet, and mobile screenshots.
+3. Inspect for blank canvases, cropped panels, overlapping controls, inaccessible focus states, and unreadable text.
+4. Test real Cesium ion services: terrain, geocoding, Black Marble, and OSM Buildings.
+5. Confirm the RainViewer radar layer against live metadata when the external API is reachable.
+6. If visual QA passes, mark the three remaining visual QA milestones in `tasks/progress.md`.
 
 ## Local Commands
 
@@ -95,5 +116,5 @@ Build and preview:
 
 ```text
 npm run build
-npm run preview -- --host 127.0.0.1
+npm run preview -- --host 127.0.0.1 --port 4173
 ```
