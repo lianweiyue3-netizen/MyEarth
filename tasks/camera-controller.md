@@ -6,43 +6,43 @@ Centralize intro orbit, idle orbit, fly-to behavior, reset view, search destinat
 
 ## Dependencies
 
-- [ ] Viewer lifecycle module can provide a Cesium viewer.
-- [ ] Camera presets are defined.
-- [ ] Location content lookup is available.
-- [ ] Accessibility reduced-motion helper is available.
+- [x] Viewer lifecycle module can provide a Cesium viewer.
+- [x] Camera presets are defined.
+- [x] Location content lookup is available.
+- [x] Accessibility reduced-motion helper is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/camera/cameraTypes.ts`.
-- [ ] Create `src/camera/cameraController.ts`.
-- [ ] Define `CameraCommand` union.
-- [ ] Define `CameraController` interface.
-- [ ] Implement camera mode state machine.
-- [ ] Implement `startIntroOrbit` command.
-- [ ] Implement `startIdleOrbit` command.
-- [ ] Implement `pauseOrbit` command.
-- [ ] Implement wonder `flyToLocation` command.
-- [ ] Implement city `flyToLocation` command.
-- [ ] Implement search `flyToCoordinates` command.
-- [ ] Implement `resetView` command.
-- [ ] Implement `notifyManualInteraction`.
-- [ ] Stop orbit loop during manual interaction.
-- [ ] Apply reduced-motion transition scaling.
-- [ ] Remove decorative roll when reduced motion is active.
-- [ ] Dispose orbit animation loop on controller disposal.
+- [x] Create `src/camera/cameraTypes.ts`.
+- [x] Create `src/camera/cameraController.ts`.
+- [x] Define `CameraCommand` union.
+- [x] Define `CameraController` interface.
+- [x] Implement camera mode state machine.
+- [x] Implement `startIntroOrbit` command.
+- [x] Implement `startIdleOrbit` command.
+- [x] Implement `pauseOrbit` command.
+- [x] Implement wonder `flyToLocation` command.
+- [x] Implement city `flyToLocation` command.
+- [x] Implement search `flyToCoordinates` command.
+- [x] Implement `resetView` command.
+- [x] Implement `notifyManualInteraction`.
+- [x] Stop orbit loop during manual interaction.
+- [x] Apply reduced-motion transition scaling.
+- [x] Remove decorative roll when reduced motion is active.
+- [x] Dispose orbit animation loop on controller disposal.
 
 ## Tests
 
-- [ ] Add Vitest coverage for allowed state transitions.
-- [ ] Add Vitest coverage for manual interaction pausing orbit.
-- [ ] Add Vitest coverage for reset preset usage.
-- [ ] Add Vitest coverage for wonder preset usage.
-- [ ] Add Vitest coverage for city preset usage.
-- [ ] Add Vitest coverage for reduced-motion duration scaling.
-- [ ] Add Vitest coverage for unknown location failure.
+- [x] Add Vitest coverage for allowed state transitions.
+- [x] Add Vitest coverage for manual interaction pausing orbit.
+- [x] Add Vitest coverage for reset preset usage.
+- [x] Add Vitest coverage for wonder preset usage.
+- [x] Add Vitest coverage for city preset usage.
+- [x] Add Vitest coverage for reduced-motion duration scaling.
+- [x] Add Vitest coverage for unknown location failure.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

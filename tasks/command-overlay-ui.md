@@ -6,45 +6,45 @@ Compose all visible controls over the globe without owning Cesium behavior.
 
 ## Dependencies
 
-- [ ] Jotai app state atoms are available.
-- [ ] UI child components are available or stubbed.
-- [ ] CSS Modules setup is available.
-- [ ] Accessibility helpers are available.
+- [x] Jotai app state atoms are available.
+- [x] UI child components are available or stubbed.
+- [x] CSS Modules setup is available.
+- [x] Accessibility helpers are available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/ui/CommandOverlay.tsx`.
-- [ ] Create `src/ui/CommandOverlay.module.css`.
-- [ ] Render top app/title cluster.
-- [ ] Render search control.
-- [ ] Render primary wonder tour control.
-- [ ] Render visual mode selector.
-- [ ] Render layer toggle panel.
-- [ ] Render learning panel.
-- [ ] Render location quick list.
-- [ ] Render reset view button.
-- [ ] Render quality indicator.
-- [ ] Render sound consent control.
-- [ ] Render attribution bar.
-- [ ] Fade or slide overlay in after first frame.
-- [ ] Keep desktop center globe visible.
-- [ ] Collapse side panels for tablet layout.
-- [ ] Use compact top and bottom controls for mobile layout.
-- [ ] Respect safe-area insets.
-- [ ] Avoid nested cards.
-- [ ] Keep attribution unblocked.
-- [ ] Render disabled states before viewer ready.
+- [x] Create `src/ui/CommandOverlay.tsx`.
+- [x] Create `src/ui/CommandOverlay.module.css`.
+- [x] Render top app/title cluster.
+- [x] Render search control.
+- [x] Render primary wonder tour control.
+- [x] Render visual mode selector.
+- [x] Render layer toggle panel.
+- [x] Render learning panel.
+- [x] Render location quick list.
+- [x] Render reset view button.
+- [x] Render quality indicator.
+- [x] Render sound consent control.
+- [x] Render attribution bar.
+- [x] Fade or slide overlay in after first frame.
+- [x] Keep desktop center globe visible.
+- [x] Collapse side panels for tablet layout.
+- [x] Use compact top and bottom controls for mobile layout.
+- [x] Respect safe-area insets.
+- [x] Avoid nested cards.
+- [x] Keep attribution unblocked.
+- [x] Render disabled states before viewer ready.
 
 ## Tests
 
-- [ ] Add React Testing Library coverage that all required controls render.
-- [ ] Add React Testing Library coverage for disabled pre-viewer state.
-- [ ] Add React Testing Library coverage that reset emits command.
-- [ ] Add Playwright viewport test for mobile panel behavior.
-- [ ] Add Playwright viewport test that controls do not cover attribution.
+- [x] Add React Testing Library coverage that all required controls render.
+- [x] Add React Testing Library coverage for disabled pre-viewer state.
+- [x] Add React Testing Library coverage that reset emits command.
+- [x] Add Playwright viewport test for mobile panel behavior.
+- [x] Add Playwright viewport test that controls do not cover attribution.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

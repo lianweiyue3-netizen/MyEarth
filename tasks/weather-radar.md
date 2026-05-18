@@ -6,46 +6,46 @@ Wrap RainViewer metadata fetching, caching, tile URL construction, and Cesium ra
 
 ## Dependencies
 
-- [ ] Configuration constants include RainViewer metadata URL.
-- [ ] Layer adapter interface is available.
-- [ ] Attribution module interface is available.
-- [ ] Quality profile type is available.
+- [x] Configuration constants include RainViewer metadata URL.
+- [x] Layer adapter interface is available.
+- [x] Attribution module interface is available.
+- [x] Quality profile type is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/layers/weatherRadarLayer.ts`.
-- [ ] Define `RadarFrame`.
-- [ ] Define `RadarMetadata`.
-- [ ] Define `WeatherRadarService`.
-- [ ] Implement metadata fetch from `https://api.rainviewer.com/public/weather-maps.json`.
-- [ ] Support `AbortSignal` for metadata fetch.
-- [ ] Parse `host` from RainViewer metadata.
-- [ ] Parse `radar.past` frames from RainViewer metadata.
-- [ ] Select latest available radar frame.
-- [ ] Cache successful metadata for 10 minutes.
-- [ ] Treat empty frame list as unavailable.
-- [ ] Build tile URL from returned `host` and frame `path`.
-- [ ] Create Cesium `UrlTemplateImageryProvider`.
-- [ ] Set maximum zoom level to 7.
-- [ ] Use tile size 512 by default.
-- [ ] Use tile size 256 in low quality.
-- [ ] Apply opacity based on visual mode and quality profile.
-- [ ] Add RainViewer attribution when radar is active.
-- [ ] Hide radar layer on network failure.
-- [ ] Report invalid metadata as recoverable failed availability.
+- [x] Create `src/layers/weatherRadarLayer.ts`.
+- [x] Define `RadarFrame`.
+- [x] Define `RadarMetadata`.
+- [x] Define `WeatherRadarService`.
+- [x] Implement metadata fetch from `https://api.rainviewer.com/public/weather-maps.json`.
+- [x] Support `AbortSignal` for metadata fetch.
+- [x] Parse `host` from RainViewer metadata.
+- [x] Parse `radar.past` frames from RainViewer metadata.
+- [x] Select latest available radar frame.
+- [x] Cache successful metadata for 10 minutes.
+- [x] Treat empty frame list as unavailable.
+- [x] Build tile URL from returned `host` and frame `path`.
+- [x] Create Cesium `UrlTemplateImageryProvider`.
+- [x] Set maximum zoom level to 7.
+- [x] Use tile size 512 by default.
+- [x] Use tile size 256 in low quality.
+- [x] Apply opacity based on visual mode and quality profile.
+- [x] Add RainViewer attribution when radar is active.
+- [x] Hide radar layer on network failure.
+- [x] Report invalid metadata as recoverable failed availability.
 
 ## Tests
 
-- [ ] Add Vitest coverage for valid metadata parsing.
-- [ ] Add Vitest coverage for invalid metadata rejection.
-- [ ] Add Vitest coverage for latest frame selection.
-- [ ] Add Vitest coverage for URL template construction.
-- [ ] Add Vitest coverage for maximum zoom level 7.
-- [ ] Add Vitest coverage for 10-minute cache behavior.
-- [ ] Add Vitest coverage for non-blocking network failure.
+- [x] Add Vitest coverage for valid metadata parsing.
+- [x] Add Vitest coverage for invalid metadata rejection.
+- [x] Add Vitest coverage for latest frame selection.
+- [x] Add Vitest coverage for URL template construction.
+- [x] Add Vitest coverage for maximum zoom level 7.
+- [x] Add Vitest coverage for 10-minute cache behavior.
+- [x] Add Vitest coverage for non-blocking network failure.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

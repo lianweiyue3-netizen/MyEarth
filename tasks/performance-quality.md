@@ -6,44 +6,44 @@ Select initial quality, monitor frame health, and apply fallback while preservin
 
 ## Dependencies
 
-- [ ] Layer controller interface is available.
-- [ ] Jotai quality atoms are available.
-- [ ] Accessibility reduced-motion state is available.
+- [x] Layer controller interface is available.
+- [x] Jotai quality atoms are available.
+- [x] Accessibility reduced-motion state is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/performance/qualityController.ts`.
-- [ ] Create `src/performance/frameHealthMonitor.ts`.
-- [ ] Create `src/performance/deviceProfile.ts`.
-- [ ] Define `QualityProfile`.
-- [ ] Implement device memory detection with fallback.
-- [ ] Implement hardware concurrency detection with fallback.
-- [ ] Implement mobile/touch context detection.
-- [ ] Implement WebGL capability bucket detection.
-- [ ] Compute high, balanced, and low profiles.
-- [ ] Compute auto effective tier.
-- [ ] Apply transition scale from reduced motion.
-- [ ] Monitor frame timing.
-- [ ] Add hysteresis for runtime downgrade.
-- [ ] Reduce cinematic extras first.
-- [ ] Disable or simplify clouds second.
-- [ ] Disable aurora third.
-- [ ] Reduce or disable radar fourth.
-- [ ] Disable buildings fifth.
-- [ ] Reduce terrain detail sixth.
-- [ ] Update quality indicator state after changes.
+- [x] Create `src/performance/qualityController.ts`.
+- [x] Create `src/performance/frameHealthMonitor.ts`.
+- [x] Create `src/performance/deviceProfile.ts`.
+- [x] Define `QualityProfile`.
+- [x] Implement device memory detection with fallback.
+- [x] Implement hardware concurrency detection with fallback.
+- [x] Implement mobile/touch context detection.
+- [x] Implement WebGL capability bucket detection.
+- [x] Compute high, balanced, and low profiles.
+- [x] Compute auto effective tier.
+- [x] Apply transition scale from reduced motion.
+- [x] Monitor frame timing.
+- [x] Add hysteresis for runtime downgrade.
+- [x] Reduce cinematic extras first.
+- [x] Disable or simplify clouds second.
+- [x] Disable aurora third.
+- [x] Reduce or disable radar fourth.
+- [x] Disable buildings fifth.
+- [x] Reduce terrain detail sixth.
+- [x] Update quality indicator state after changes.
 
 ## Tests
 
-- [ ] Add Vitest coverage for initial tier mapping.
-- [ ] Add Vitest coverage for missing device API fallback.
-- [ ] Add Vitest coverage for fallback order.
-- [ ] Add Vitest coverage for user-selected low profile.
-- [ ] Add Vitest coverage for hysteresis.
-- [ ] Add Vitest coverage for reduced-motion transition scaling.
+- [x] Add Vitest coverage for initial tier mapping.
+- [x] Add Vitest coverage for missing device API fallback.
+- [x] Add Vitest coverage for fallback order.
+- [x] Add Vitest coverage for user-selected low profile.
+- [x] Add Vitest coverage for hysteresis.
+- [x] Add Vitest coverage for reduced-motion transition scaling.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

@@ -20,6 +20,7 @@ Implemented baseline:
 - Tour and soundscape controllers.
 - Performance quality profile logic.
 - README deployment/setup documentation.
+- Expanded core service, Cesium scene, app shell, and UI component coverage.
 
 ## Verification Last Run
 
@@ -37,7 +38,7 @@ Latest observed results:
 
 - TypeScript: passed.
 - ESLint: passed.
-- Vitest: 11 files, 62 tests passed.
+- Vitest: 14 files, 86 tests passed.
 - Vite production build: passed.
 - Playwright: 15 tests passed across desktop, tablet, and mobile Chromium projects.
 
@@ -49,48 +50,15 @@ npx playwright install chromium
 
 ## Progress Tracker
 
-`tasks/progress.md` has verified completion marked for:
-
-- Configuration.
-- Jotai App State.
-- Camera Presets.
-- Location Content.
-- Educational Source Notes.
-- Learning Content.
-- Visual Mode.
-- Accessibility.
-- Persistence.
-- Telemetry.
-- Local boot/typecheck/lint/build/Playwright smoke/deployment docs/service notes.
+`tasks/progress.md` now marks all module task files complete after reconciling implementation and tests.
 
 Still unchecked in `tasks/progress.md`:
 
-- App Shell.
-- Cesium Scene.
-- Viewer Lifecycle.
-- Camera Controller.
-- Layer Controller.
-- Terrain Layer.
-- Buildings Layer.
-- Night Lights Layer.
-- Procedural Cloud Layer.
-- Aurora Layer.
-- Weather Radar.
-- Search.
-- Tour.
-- Sound.
-- Performance Quality.
-- Command Overlay UI.
-- Search Control.
-- Visual Mode Selector.
-- Layer Toggle Panel.
-- Learning Panel.
-- Location List.
-- Attribution.
-- Error Fallback.
-- Desktop/tablet/mobile visual QA milestones.
+- Desktop visual QA passes.
+- Tablet visual QA passes.
+- Mobile visual QA passes.
 
-Many unchecked modules already have initial implementation files, but their individual task files have not all been reconciled with tests and done criteria.
+Those QA milestones should be completed with screenshot review, preferably against a real `VITE_CESIUM_ION_TOKEN` so Cesium terrain, imagery, and optional layers can be visually inspected.
 
 ## Important Constraints
 
@@ -109,20 +77,11 @@ Many unchecked modules already have initial implementation files, but their indi
 
 ## Suggested Next Work
 
-1. Add focused unit tests for core services already implemented:
-   - `cameraController`
-   - `layerController`
-   - individual layer adapters
-   - `weatherRadarService`
-   - `searchService`
-   - `tourController`
-   - `soundscape`
-   - `qualityController`
-   - `viewerLifecycle`
-2. Add React Testing Library tests for app shell and UI components not yet individually covered.
-3. Update each corresponding `tasks/*.md` checklist only after its module tests pass.
-4. Run the full verification sequence again.
-5. Mark additional modules complete in `tasks/progress.md` only when their module task files are fully checked.
+1. Run the app with a real `VITE_CESIUM_ION_TOKEN` and visually inspect desktop, tablet, and mobile.
+2. Capture screenshots for the remaining visual QA milestones.
+3. Test real Cesium ion services: terrain, geocoding, Black Marble, and OSM Buildings.
+4. Confirm the RainViewer radar layer against live metadata when the external API is reachable.
+5. If visual QA passes, mark the three remaining visual QA milestones in `tasks/progress.md`.
 
 ## Local Commands
 

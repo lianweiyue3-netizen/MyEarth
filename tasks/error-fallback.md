@@ -6,38 +6,38 @@ Provide safe user-facing fallback states for fatal and recoverable failures with
 
 ## Dependencies
 
-- [ ] Shared `AppError` type is available.
-- [ ] Accessibility live region helper is available.
-- [ ] CSS Modules setup is available.
+- [x] Shared `AppError` type is available.
+- [x] Accessibility live region helper is available.
+- [x] CSS Modules setup is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/ui/ErrorFallback.tsx`.
-- [ ] Create `src/ui/ErrorFallback.module.css`.
-- [ ] Render fatal WebGL unavailable fallback.
-- [ ] Render fatal Cesium initialization fallback.
-- [ ] Render missing Cesium token setup guidance.
-- [ ] Mention `VITE_CESIUM_ION_TOKEN` in missing-token guidance.
-- [ ] Avoid showing token values.
-- [ ] Avoid showing raw stack traces.
-- [ ] Render recoverable optional layer status pattern.
-- [ ] Render recoverable search failure status pattern.
-- [ ] Render recoverable sound unavailable status pattern.
-- [ ] Announce fatal errors through live region.
-- [ ] Announce recoverable errors through live region.
-- [ ] Provide retry action for recoverable layer errors where available.
+- [x] Create `src/ui/ErrorFallback.tsx`.
+- [x] Create `src/ui/ErrorFallback.module.css`.
+- [x] Render fatal WebGL unavailable fallback.
+- [x] Render fatal Cesium initialization fallback.
+- [x] Render missing Cesium token setup guidance.
+- [x] Mention `VITE_CESIUM_ION_TOKEN` in missing-token guidance.
+- [x] Avoid showing token values.
+- [x] Avoid showing raw stack traces.
+- [x] Render recoverable optional layer status pattern.
+- [x] Render recoverable search failure status pattern.
+- [x] Render recoverable sound unavailable status pattern.
+- [x] Announce fatal errors through live region.
+- [x] Announce recoverable errors through live region.
+- [x] Provide retry action for recoverable layer errors where available.
 
 ## Tests
 
-- [ ] Add React Testing Library coverage for WebGL fallback.
-- [ ] Add React Testing Library coverage for Cesium init fallback.
-- [ ] Add React Testing Library coverage for missing-token message.
-- [ ] Add React Testing Library coverage that token values are not rendered.
-- [ ] Add React Testing Library coverage for recoverable weather failure.
-- [ ] Add React Testing Library coverage for live-region announcement.
+- [x] Add React Testing Library coverage for WebGL fallback.
+- [x] Add React Testing Library coverage for Cesium init fallback.
+- [x] Add React Testing Library coverage for missing-token message.
+- [x] Add React Testing Library coverage that token values are not rendered.
+- [x] Add React Testing Library coverage for recoverable weather failure.
+- [x] Add React Testing Library coverage for live-region announcement.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

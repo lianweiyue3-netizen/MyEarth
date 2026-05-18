@@ -6,44 +6,44 @@ Coordinate all Cesium visual layer adapters through a uniform interface and isol
 
 ## Dependencies
 
-- [ ] Cesium viewer lifecycle is available.
-- [ ] Visual mode definitions are available.
-- [ ] Quality profile type is available.
-- [ ] Individual layer adapters are available or stubbed.
+- [x] Cesium viewer lifecycle is available.
+- [x] Visual mode definitions are available.
+- [x] Quality profile type is available.
+- [x] Individual layer adapters are available or stubbed.
 
 ## Implementation Checklist
 
-- [ ] Create `src/layers/layerController.ts`.
-- [ ] Create `src/layers/layerDefinitions.ts`.
-- [ ] Define `CesiumLayerAdapter`.
-- [ ] Define `LayerController`.
-- [ ] Register atmosphere adapter.
-- [ ] Register terrain adapter.
-- [ ] Register labels adapter.
-- [ ] Register buildings adapter.
-- [ ] Register weather radar adapter.
-- [ ] Register procedural clouds adapter.
-- [ ] Register aurora adapter.
-- [ ] Register night lights internal adapter.
-- [ ] Initialize baseline layers before optional layers.
-- [ ] Lazy initialize expensive optional layers.
-- [ ] Implement `setVisualMode`.
-- [ ] Implement `setLayerEnabled`.
-- [ ] Implement `getLayerAvailability`.
-- [ ] Implement `applyQualityProfile`.
-- [ ] Implement adapter disposal.
-- [ ] Route adapter failures to layer availability state.
+- [x] Create `src/layers/layerController.ts`.
+- [x] Create `src/layers/layerDefinitions.ts`.
+- [x] Define `CesiumLayerAdapter`.
+- [x] Define `LayerController`.
+- [x] Register atmosphere adapter.
+- [x] Register terrain adapter.
+- [x] Register labels adapter.
+- [x] Register buildings adapter.
+- [x] Register weather radar adapter.
+- [x] Register procedural clouds adapter.
+- [x] Register aurora adapter.
+- [x] Register night lights internal adapter.
+- [x] Initialize baseline layers before optional layers.
+- [x] Lazy initialize expensive optional layers.
+- [x] Implement `setVisualMode`.
+- [x] Implement `setLayerEnabled`.
+- [x] Implement `getLayerAvailability`.
+- [x] Implement `applyQualityProfile`.
+- [x] Implement adapter disposal.
+- [x] Route adapter failures to layer availability state.
 
 ## Tests
 
-- [ ] Add Vitest coverage that toggling one layer does not affect unrelated layers.
-- [ ] Add Vitest coverage that optional adapter failure is isolated.
-- [ ] Add Vitest coverage that visual mode changes call adapters without recreating viewer.
-- [ ] Add Vitest coverage that quality profile disables layers in fallback order.
-- [ ] Add Vitest coverage that disposal calls each initialized adapter.
+- [x] Add Vitest coverage that toggling one layer does not affect unrelated layers.
+- [x] Add Vitest coverage that optional adapter failure is isolated.
+- [x] Add Vitest coverage that visual mode changes call adapters without recreating viewer.
+- [x] Add Vitest coverage that quality profile disables layers in fallback order.
+- [x] Add Vitest coverage that disposal calls each initialized adapter.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

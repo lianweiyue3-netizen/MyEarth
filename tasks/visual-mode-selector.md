@@ -6,34 +6,34 @@ Provide accessible mutually exclusive selection among satellite, labels, night, 
 
 ## Dependencies
 
-- [ ] Visual mode definitions are available.
-- [ ] Jotai visual mode atom is available.
-- [ ] CSS Modules setup is available.
+- [x] Visual mode definitions are available.
+- [x] Jotai visual mode atom is available.
+- [x] CSS Modules setup is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/ui/VisualModeSelector.tsx`.
-- [ ] Create `src/ui/VisualModeSelector.module.css`.
-- [ ] Render all five visual modes.
-- [ ] Use segmented control or tab semantics.
-- [ ] Expose active selected state through ARIA.
-- [ ] Add visible active state.
-- [ ] Implement click selection.
-- [ ] Implement keyboard navigation.
-- [ ] Emit selected `VisualModeId`.
-- [ ] Use short labels: Satellite, Labels, Night, Terrain, Clean.
-- [ ] Prevent multiple active modes.
+- [x] Create `src/ui/VisualModeSelector.tsx`.
+- [x] Create `src/ui/VisualModeSelector.module.css`.
+- [x] Render all five visual modes.
+- [x] Use segmented control or tab semantics.
+- [x] Expose active selected state through ARIA.
+- [x] Add visible active state.
+- [x] Implement click selection.
+- [x] Implement keyboard navigation.
+- [x] Emit selected `VisualModeId`.
+- [x] Use short labels: Satellite, Labels, Night, Terrain, Clean.
+- [x] Prevent multiple active modes.
 
 ## Tests
 
-- [ ] Add React Testing Library coverage that all modes render.
-- [ ] Add React Testing Library coverage for click selection.
-- [ ] Add React Testing Library coverage for keyboard selection.
-- [ ] Add React Testing Library coverage for accessible selected state.
-- [ ] Add React Testing Library coverage that only one mode is active.
+- [x] Add React Testing Library coverage that all modes render.
+- [x] Add React Testing Library coverage for click selection.
+- [x] Add React Testing Library coverage for keyboard selection.
+- [x] Add React Testing Library coverage for accessible selected state.
+- [x] Add React Testing Library coverage that only one mode is active.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

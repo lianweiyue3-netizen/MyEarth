@@ -6,35 +6,35 @@ Manage the Cesium ion Earth at Night / NASA Black Marble imagery layer for night
 
 ## Dependencies
 
-- [ ] Layer adapter interface is available.
-- [ ] Visual mode definitions are available.
-- [ ] Cesium ion token handling is available.
-- [ ] Attribution module interface is available.
+- [x] Layer adapter interface is available.
+- [x] Visual mode definitions are available.
+- [x] Cesium ion token handling is available.
+- [x] Attribution module interface is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/layers/nightLightsLayer.ts`.
-- [ ] Implement night lights adapter.
-- [ ] Create Cesium ion imagery provider for Earth at Night / NASA Black Marble.
-- [ ] Add night lights imagery only when night lights mode is active.
-- [ ] Tune imagery alpha for readable globe display.
-- [ ] Tune brightness or contrast only through supported Cesium layer settings.
-- [ ] Remove or hide night lights layer when leaving night lights mode.
-- [ ] Preserve live-time sun lighting behavior.
-- [ ] Report missing token as disabled availability.
-- [ ] Report imagery load failure as recoverable failed availability.
-- [ ] Activate NASA Black Marble / Cesium attribution when layer is active.
+- [x] Create `src/layers/nightLightsLayer.ts`.
+- [x] Implement night lights adapter.
+- [x] Create Cesium ion imagery provider for Earth at Night / NASA Black Marble.
+- [x] Add night lights imagery only when night lights mode is active.
+- [x] Tune imagery alpha for readable globe display.
+- [x] Tune brightness or contrast only through supported Cesium layer settings.
+- [x] Remove or hide night lights layer when leaving night lights mode.
+- [x] Preserve live-time sun lighting behavior.
+- [x] Report missing token as disabled availability.
+- [x] Report imagery load failure as recoverable failed availability.
+- [x] Activate NASA Black Marble / Cesium attribution when layer is active.
 
 ## Tests
 
-- [ ] Add Vitest coverage that night mode requests night lights imagery.
-- [ ] Add Vitest coverage that leaving night mode hides or removes layer.
-- [ ] Add Vitest coverage for missing-token disabled state.
-- [ ] Add Vitest coverage for imagery failure fallback.
-- [ ] Add Vitest coverage that other imagery layers remain intact after failure.
+- [x] Add Vitest coverage that night mode requests night lights imagery.
+- [x] Add Vitest coverage that leaving night mode hides or removes layer.
+- [x] Add Vitest coverage for missing-token disabled state.
+- [x] Add Vitest coverage for imagery failure fallback.
+- [x] Add Vitest coverage that other imagery layers remain intact after failure.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.

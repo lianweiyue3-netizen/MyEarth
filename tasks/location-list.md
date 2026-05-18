@@ -6,39 +6,39 @@ Provide quick access to primary wonders and secondary city shortcuts.
 
 ## Dependencies
 
-- [ ] Location content is available.
-- [ ] Camera command dispatch is available.
-- [ ] Buildings request action is available.
-- [ ] CSS Modules setup is available.
+- [x] Location content is available.
+- [x] Camera command dispatch is available.
+- [x] Buildings request action is available.
+- [x] CSS Modules setup is available.
 
 ## Implementation Checklist
 
-- [ ] Create `src/ui/LocationList.tsx`.
-- [ ] Create `src/ui/LocationList.module.css`.
-- [ ] Render eight wonders in primary group.
-- [ ] Render seven cities in secondary group.
-- [ ] Place wonders before cities in DOM order.
-- [ ] Apply stronger visual hierarchy to wonders.
-- [ ] Apply secondary visual hierarchy to cities.
-- [ ] Emit selected location id on wonder selection.
-- [ ] Emit wonder fly-to command on wonder selection.
-- [ ] Emit selected location id on city selection.
-- [ ] Emit city fly-to command on city selection.
-- [ ] Request buildings opportunistically on city selection.
-- [ ] Keep city selection successful if buildings fail.
-- [ ] Provide accessible labels for grouped lists.
+- [x] Create `src/ui/LocationList.tsx`.
+- [x] Create `src/ui/LocationList.module.css`.
+- [x] Render eight wonders in primary group.
+- [x] Render seven cities in secondary group.
+- [x] Place wonders before cities in DOM order.
+- [x] Apply stronger visual hierarchy to wonders.
+- [x] Apply secondary visual hierarchy to cities.
+- [x] Emit selected location id on wonder selection.
+- [x] Emit wonder fly-to command on wonder selection.
+- [x] Emit selected location id on city selection.
+- [x] Emit city fly-to command on city selection.
+- [x] Request buildings opportunistically on city selection.
+- [x] Keep city selection successful if buildings fail.
+- [x] Provide accessible labels for grouped lists.
 
 ## Tests
 
-- [ ] Add React Testing Library coverage that all eight wonders render.
-- [ ] Add React Testing Library coverage that all seven cities render.
-- [ ] Add React Testing Library coverage that wonders appear before cities.
-- [ ] Add React Testing Library coverage for wonder selection.
-- [ ] Add React Testing Library coverage for city selection.
-- [ ] Add React Testing Library coverage that city selection does not require buildings success.
+- [x] Add React Testing Library coverage that all eight wonders render.
+- [x] Add React Testing Library coverage that all seven cities render.
+- [x] Add React Testing Library coverage that wonders appear before cities.
+- [x] Add React Testing Library coverage for wonder selection.
+- [x] Add React Testing Library coverage for city selection.
+- [x] Add React Testing Library coverage that city selection does not require buildings success.
 
 ## Done Criteria
 
-- [ ] Public interface matches `detail-design.md`.
-- [ ] Required failure behavior is implemented.
-- [ ] Independent tests for the module pass.
+- [x] Public interface matches `detail-design.md`.
+- [x] Required failure behavior is implemented.
+- [x] Independent tests for the module pass.
