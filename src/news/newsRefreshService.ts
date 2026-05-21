@@ -8,6 +8,7 @@ import type {
 } from "./newsTypes.js";
 import {
   getNewsUnavailableReason,
+  NEWS_SNAPSHOT_SCHEMA_VERSION,
   NEWS_UNAVAILABLE_MESSAGES
 } from "./newsTypes.js";
 import {
@@ -35,7 +36,11 @@ export async function refreshNewsSnapshot(options: {
     const existing = await options.cache.getSnapshot();
     existingSuccessAt = existing?.refreshedAt;
 
-    if (existing && isSameUtcDate(existing.refreshedAt, nowIso)) {
+    if (
+      existing &&
+      isSameUtcDate(existing.refreshedAt, nowIso) &&
+      existing.snapshot.schemaVersion === NEWS_SNAPSHOT_SCHEMA_VERSION
+    ) {
       return { status: "skipped", reason: "fresh-cache" };
     }
   } catch {

@@ -127,6 +127,7 @@ test("news panel displays cached headlines and source attribution", async ({ pag
                   title: "Test headline",
                   summary: "Short summary",
                   url: "https://example.com/story",
+                  imageUrl: "https://example.com/image.jpg",
                   sourceName: "Example News",
                   publishedAt: "2026-05-21T01:30:00.000Z"
                 }
@@ -155,4 +156,7 @@ test("news panel displays cached headlines and source attribution", async ({ pag
     "href",
     "https://example.com/story"
   );
+  await expect(
+    page.getByRole("link", { name: /Find related YouTube video: Test headline/ })
+  ).toHaveAttribute("href", /youtube\.com\/results/);
 });

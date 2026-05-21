@@ -2,7 +2,8 @@ import type { NewsCountrySummary, NewsSnapshot } from "./newsTypes.js";
 import {
   createNewsServiceError,
   isCountryCode,
-  isIsoTimestamp
+  isIsoTimestamp,
+  NEWS_SNAPSHOT_SCHEMA_VERSION
 } from "./newsTypes.js";
 
 const MAX_ARTICLES_PER_COUNTRY = 10;
@@ -60,6 +61,7 @@ export function createNewsSnapshot(input: {
   }
 
   return {
+    schemaVersion: NEWS_SNAPSHOT_SCHEMA_VERSION,
     provider: "GNews",
     category: "general",
     language: "en",
@@ -89,6 +91,7 @@ function normalizeGNewsArticle(input: {
     readTrimmedString(input.article.description) ??
     readTrimmedString(input.article.content) ??
     "";
+  const imageUrl = readSafeHttpUrl(input.article.image);
   const sourceName =
     readSourceName(input.article.source) ?? readTrimmedString(input.article.source) ?? "GNews";
   const publishedAt =
@@ -104,6 +107,7 @@ function normalizeGNewsArticle(input: {
     title,
     summary,
     url,
+    ...(imageUrl ? { imageUrl } : {}),
     sourceName,
     publishedAt
   };

@@ -75,7 +75,7 @@ Manual news acceptance checks:
 - OpenStreetMap attribution must remain visible when OSM Buildings are active.
 - OpenStreetMap Nominatim powers the street/state readout when the camera is close to the surface.
 - RainViewer radar metadata is fetched from `https://api.rainviewer.com/public/weather-maps.json`; radar is best-effort, limited to maximum zoom 7, cached for 10 minutes, and attributed to RainViewer when active.
-- GNews top headlines power the optional News heatmap; cached stories are image-free in the UI and link to original providers.
+- GNews top headlines power the optional News heatmap; cached stories can show provider images, link to original providers, and include related YouTube search links.
 - The aurora layer is a local illustrative overlay and is not a live space-weather feed.
 - Web Audio starts only after explicit user opt-in.
 - Telemetry is no-op by default and, when configured, accepts only anonymous typed performance and error categories. Search query text and precise user location are not collected.

@@ -27,7 +27,7 @@ When documents overlap, treat `detail-design_news.md` as the implementation cont
 - Do not expose `GNEWS_API_KEY` to browser code.
 - Do not call GNews directly from the browser.
 - Do not require paid news API access.
-- Do not display article images in v1.
+- Display provider article images when GNews supplies an HTTP(S) image URL.
 - Do not scrape article bodies.
 - Do not collect user identity, precise location, search text, article titles, article URLs, or article summaries in telemetry.
 - Do not store Cesium viewer instances, entities, primitives, GeoJSON objects, provider clients, or server clients in Jotai atoms.
@@ -285,7 +285,7 @@ Use Vercel KV for:
 - Treat HTTP 429 as `quota-exceeded`.
 - Treat missing key as `missing-api-key`.
 - Treat invalid provider payload as `invalid-provider-payload`.
-- Do not display images.
+- Display provider article images when available.
 - Do not scrape article bodies.
 - Do not copy long article text.
 
@@ -341,7 +341,7 @@ Required automated coverage includes:
 - News layer toggle behavior.
 - News panel loading, ready, unavailable, selected country, and empty country states.
 - Safe article links.
-- No image rendering.
+- Provider image rendering.
 - GNews attribution.
 - Keyboard-accessible News panel and country list.
 - Cesium heatmap entity creation, cleanup, and country pick behavior.

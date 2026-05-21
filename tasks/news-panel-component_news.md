@@ -28,7 +28,8 @@ Render news loading, unavailable, ready, selected-country, timestamp, source, an
 - [x] Render article published time.
 - [x] Render external article link.
 - [x] Use `target="_blank"` and `rel="noreferrer"` on article links.
-- [x] Do not render article images.
+- [x] Render provider article images when available.
+- [x] Render a related YouTube search link for each article.
 - [x] Render country list when no selected country exists.
 - [x] Add compact enable or disable news heatmap control.
 - [x] Ensure long text wraps without overlap.
@@ -41,7 +42,7 @@ Render news loading, unavailable, ready, selected-country, timestamp, source, an
 - [x] Add React Testing Library coverage for selected country headline list.
 - [x] Add React Testing Library coverage for empty selected country.
 - [x] Add React Testing Library coverage for safe external links.
-- [x] Add React Testing Library coverage that no images render.
+- [x] Add React Testing Library coverage for article media and YouTube links.
 - [x] Add React Testing Library coverage for layer toggle callback.
 - [x] Add React Testing Library coverage for country selection callback.
 

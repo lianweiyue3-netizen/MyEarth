@@ -42,6 +42,7 @@ describe("news normalizer", () => {
           title: "A headline",
           summary: "A short summary.",
           url: "https://example.com/story",
+          imageUrl: "https://example.com/image.jpg",
           sourceName: "Example News",
           publishedAt: "2026-05-21T09:00:00.000Z"
         }

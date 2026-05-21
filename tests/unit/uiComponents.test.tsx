@@ -34,6 +34,7 @@ const readyNewsState: NewsState = {
             title: "Market update",
             summary: "Provider supplied summary.",
             url: "https://example.com/story",
+            imageUrl: "https://example.com/image.jpg",
             sourceName: "Example News",
             publishedAt: "2026-05-21T01:30:00.000Z"
           }
@@ -312,10 +313,18 @@ describe("UI components", () => {
     expect(screen.getByText("Market update")).toBeInTheDocument();
     expect(screen.getByText("Provider supplied summary.")).toBeInTheDocument();
     expect(screen.getByText(/Example News/)).toBeInTheDocument();
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://example.com/image.jpg"
+    );
     const link = screen.getByRole("link", { name: /Read article: Market update/ });
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noreferrer");
-    expect(container.querySelector("img")).not.toBeInTheDocument();
+    const videoLink = screen.getByRole("link", {
+      name: /Find related YouTube video: Market update/
+    });
+    expect(videoLink.getAttribute("href")).toContain("youtube.com");
+    expect(videoLink).toHaveAttribute("target", "_blank");
   });
 
   it("renders empty selected country news state", () => {

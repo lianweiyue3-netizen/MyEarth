@@ -25,7 +25,7 @@ This document is requirements and design only. It does not implement code. Imple
 - Boundary data: bundled simplified GeoJSON country polygons.
 - Heatmap metric: headline volume per country.
 - Default visibility: news heatmap off.
-- Article media: no images in v1.
+- Article media: provider image URLs may be displayed when GNews supplies them.
 - Article content: title, short summary, source, publish time, and external link only.
 
 ## 3. Non-Goals
@@ -320,7 +320,7 @@ export function createNewsSnapshot(input: {
 - Generates stable article ids from country code, URL or title, and index.
 - Trims whitespace from titles, summaries, source names, and URLs.
 - Drops articles without title or URL.
-- Drops image fields.
+- Normalizes safe HTTP(S) provider image URLs into `imageUrl`.
 - Keeps at most 10 valid articles per country.
 - Sets `headlineCount` to valid article count.
 
@@ -722,7 +722,8 @@ export type NewsPanelProps = {
 - Shows a no-headlines message for selected countries with zero headlines.
 - Shows a concise list of countries with headlines when no country is selected.
 - Article links use `target="_blank"` and `rel="noreferrer"`.
-- Does not render article images.
+- Renders provider article images when `imageUrl` is available.
+- Renders a related YouTube search link for each article.
 
 ### Failure Behavior
 
@@ -735,7 +736,7 @@ export type NewsPanelProps = {
 - Renders last updated timestamp.
 - Renders selected country headlines.
 - Renders safe external links.
-- Does not render image elements.
+- Renders image elements and YouTube links for article media.
 
 ## 19. Command Overlay UI Integration
 

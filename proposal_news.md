@@ -70,10 +70,11 @@ Because of these limits, v1 should refresh cached country data daily, not hourly
   - Headline title.
   - Short summary.
   - Source name.
-  - Published time.
-  - External article link.
+- Published time.
+- External article link.
 - The UI must show timestamps so users understand freshness and possible free-tier delay.
-- The UI must not show article images in v1.
+- The UI may show provider article images when GNews supplies an HTTP(S) image URL.
+- Each article should include a related YouTube search link.
 - External article links should open in a new tab with safe link attributes.
 
 ## API And Caching Requirements

@@ -1,5 +1,9 @@
 import type { LayerId } from "../shared/domain";
-import type { NewsCountrySummary, NewsState } from "../news/newsTypes";
+import type {
+  NewsArticle,
+  NewsCountrySummary,
+  NewsState
+} from "../news/newsTypes";
 import styles from "./NewsPanel.module.css";
 
 export type NewsPanelProps = {
@@ -151,6 +155,15 @@ function CountryHeadlines({ country }: { country: NewsCountrySummary }) {
         <ol>
           {country.articles.slice(0, 10).map((article) => (
             <li key={article.id}>
+              {article.imageUrl ? (
+                <img
+                  src={article.imageUrl}
+                  alt=""
+                  className={styles.articleImage}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+              ) : null}
               <a
                 href={article.url}
                 target="_blank"
@@ -163,12 +176,31 @@ function CountryHeadlines({ country }: { country: NewsCountrySummary }) {
               <span>
                 {article.sourceName} - {formatDateTime(article.publishedAt)}
               </span>
+              <a
+                href={createYouTubeSearchUrl(article, country)}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.videoLink}
+                aria-label={`Find related YouTube video: ${article.title}`}
+              >
+                Related video on YouTube
+              </a>
             </li>
           ))}
         </ol>
       )}
     </div>
   );
+}
+
+function createYouTubeSearchUrl(
+  article: NewsArticle,
+  country: NewsCountrySummary
+): string {
+  const query = `${article.title} ${country.countryName} news`;
+  const url = new URL("https://www.youtube.com/results");
+  url.searchParams.set("search_query", query);
+  return url.toString();
 }
 
 function formatDateTime(value: string) {

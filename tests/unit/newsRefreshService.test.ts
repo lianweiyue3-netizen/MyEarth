@@ -9,6 +9,7 @@ import type { NewsCountryDefinition } from "../../src/news/newsCountries";
 import { refreshNewsSnapshot } from "../../src/news/newsRefreshService";
 import {
   createNewsServiceError,
+  NEWS_SNAPSHOT_SCHEMA_VERSION,
   type NewsSnapshot
 } from "../../src/news/newsTypes";
 
@@ -30,6 +31,7 @@ const countries: readonly NewsCountryDefinition[] = [
 const now = () => new Date("2026-05-21T12:00:00.000Z");
 
 const staleSnapshot: NewsSnapshot = {
+  schemaVersion: NEWS_SNAPSHOT_SCHEMA_VERSION,
   provider: "GNews",
   category: "general",
   language: "en",
@@ -129,6 +131,25 @@ describe("news refresh service", () => {
       refreshNewsSnapshot({ provider, cache, countries, now })
     ).resolves.toEqual({ status: "skipped", reason: "fresh-cache" });
     expect(provider.fetchTopHeadlines).not.toHaveBeenCalled();
+  });
+
+  it("refreshes same-day cache when the snapshot schema is old", async () => {
+    const cache = createNewsCacheRepository(new MemoryKvClient());
+    const oldSnapshot = { ...staleSnapshot };
+    delete oldSnapshot.schemaVersion;
+    await cache.setSnapshot({
+      snapshot: {
+        ...oldSnapshot,
+        lastUpdated: "2026-05-21T01:00:00.000Z"
+      },
+      refreshedAt: "2026-05-21T01:00:00.000Z"
+    });
+    const provider = createProvider(() => ({ articles: [] }));
+
+    await expect(
+      refreshNewsSnapshot({ provider, cache, countries, now })
+    ).resolves.toMatchObject({ status: "refreshed" });
+    expect(provider.fetchTopHeadlines).toHaveBeenCalledTimes(2);
   });
 
   it("skips when another refresh holds the lock", async () => {

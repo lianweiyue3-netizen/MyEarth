@@ -24,7 +24,7 @@ Convert raw GNews payloads into stable MyEarth news snapshot data.
 - [x] Generate stable article ids from country code, URL or title, and index.
 - [x] Drop articles with no title.
 - [x] Drop articles with no URL.
-- [x] Drop image fields from normalized output.
+- [x] Normalize provider image URL into `imageUrl` when present.
 - [x] Keep at most 10 articles per country.
 - [x] Set `headlineCount` from normalized article count.
 - [x] Return zero-headline summaries for empty article arrays.
@@ -47,5 +47,5 @@ Convert raw GNews payloads into stable MyEarth news snapshot data.
 ## Done Criteria
 
 - [x] Normalizer output matches the news domain types.
-- [x] No image or article body fields are emitted.
+- [x] No raw image or article body fields are emitted.
 - [x] Independent tests for this module pass.

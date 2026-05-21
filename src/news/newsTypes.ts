@@ -1,10 +1,12 @@
 export type NewsProviderId = "GNews";
+export const NEWS_SNAPSHOT_SCHEMA_VERSION = 2;
 
 export type NewsArticle = {
   id: string;
   title: string;
   summary: string;
   url: string;
+  imageUrl?: string;
   sourceName: string;
   publishedAt: string;
 };
@@ -17,6 +19,7 @@ export type NewsCountrySummary = {
 };
 
 export type NewsSnapshot = {
+  schemaVersion?: typeof NEWS_SNAPSHOT_SCHEMA_VERSION;
   provider: NewsProviderId;
   category: "general";
   language: "en";
@@ -161,6 +164,8 @@ export function isNewsSnapshot(value: unknown): value is NewsSnapshot {
 
   return (
     value.provider === "GNews" &&
+    (value.schemaVersion === undefined ||
+      value.schemaVersion === NEWS_SNAPSHOT_SCHEMA_VERSION) &&
     value.category === "general" &&
     value.language === "en" &&
     isIsoTimestamp(value.lastUpdated) &&
@@ -211,6 +216,7 @@ function isNewsArticle(value: unknown): value is NewsArticle {
     isNonEmptyString(value.title) &&
     typeof value.summary === "string" &&
     isNonEmptyString(value.url) &&
+    (value.imageUrl === undefined || isHttpUrl(value.imageUrl)) &&
     isNonEmptyString(value.sourceName) &&
     isIsoTimestamp(value.publishedAt)
   );
@@ -240,6 +246,19 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isHttpUrl(value: unknown): value is string {
+  if (!isNonEmptyString(value)) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
 }
 
 export function isCountryCode(value: unknown): value is string {

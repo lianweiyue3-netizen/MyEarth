@@ -86,9 +86,18 @@
 
 .headlines li {
   display: grid;
-  gap: 0.24rem;
+  gap: 0.32rem;
   padding-block-end: 0.5rem;
   border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+.articleImage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.42rem;
+  background: rgb(8 22 41 / 76%);
 }
 
 .headlines a {
@@ -101,4 +110,11 @@
 
 .headlines a:hover {
   text-decoration: underline;
+}
+
+.headlines .videoLink {
+  width: fit-content;
+  color: rgb(140 206 255 / 94%);
+  font-size: 0.76rem;
+  font-weight: 600;
 }

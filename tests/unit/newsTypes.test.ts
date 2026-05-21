@@ -24,6 +24,7 @@ const snapshot: NewsSnapshot = {
           title: "Test headline",
           summary: "Short provider summary",
           url: "https://example.com/news",
+          imageUrl: "https://example.com/news.jpg",
           sourceName: "Example News",
           publishedAt: "2026-05-21T00:00:00.000Z"
         }
@@ -85,9 +86,10 @@ describe("news domain types", () => {
     expect(isSerializableNewsState(state)).toBe(true);
   });
 
-  it("does not model article image or body fields", () => {
+  it("models optional article image URLs but not article body fields", () => {
     const article = snapshot.countries.us.articles[0];
 
+    expect(article.imageUrl).toBe("https://example.com/news.jpg");
     expect("image" in article).toBe(false);
     expect("body" in article).toBe(false);
     expect("content" in article).toBe(false);

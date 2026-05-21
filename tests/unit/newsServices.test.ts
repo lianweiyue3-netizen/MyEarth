@@ -53,7 +53,7 @@ function snapshot(): NewsSnapshot {
 }
 
 describe("news domain and normalization", () => {
-  it("normalizes GNews payloads without image or article body fields", () => {
+  it("normalizes GNews payloads with provider image URLs and without article body fields", () => {
     const country = normalizeGNewsCountryResponse({
       countryCode: "US",
       countryName: "United States",
@@ -71,10 +71,12 @@ describe("news domain and normalization", () => {
       title: "Headline",
       summary: "Summary",
       url: "https://example.com/story",
+      imageUrl: "https://example.com/image.jpg",
       sourceName: "Example News",
       publishedAt: "2026-05-20T22:00:00.000Z"
     });
     expect(country.articles[0]).not.toHaveProperty("image");
+    expect(country.articles[0]).not.toHaveProperty("content");
   });
 
   it("drops invalid articles and accepts empty country responses", () => {

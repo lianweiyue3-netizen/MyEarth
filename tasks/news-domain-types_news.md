@@ -21,7 +21,7 @@ Define serializable shared news types used by server normalization, client state
 - [x] Add `NewsState`.
 - [x] Ensure all news types are serializable.
 - [x] Ensure timestamps are represented as ISO strings.
-- [x] Ensure article image fields are not part of the public news types.
+- [x] Add optional public `imageUrl` for provider article images.
 - [x] Ensure article body text is not part of the public news types.
 - [x] Export types from a module that both client and server code can import.
 
