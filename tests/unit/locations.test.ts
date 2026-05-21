@@ -26,8 +26,8 @@ describe("location content", () => {
     }
   });
 
-  it("sets building descents only for city shortcuts", () => {
-    expect(cityLocations.every((location) => location.buildingDescentPreferred)).toBe(true);
-    expect(wonderLocations.every((location) => !location.buildingDescentPreferred)).toBe(true);
+  it("keeps city shortcuts free of 3D building suggestions", () => {
+    expect(cityLocations.every((location) => !location.suggestedLayers.includes("buildings"))).toBe(true);
+    expect(wonderLocations.every((location) => !location.suggestedLayers.includes("buildings"))).toBe(true);
   });
 });

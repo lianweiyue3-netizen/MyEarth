@@ -6,11 +6,21 @@ import styles from "./LearningPanel.module.css";
 
 export const LEARNING_PANEL_ID = "myearth-learning-panel";
 
+const layerLabels: Partial<Record<LayerId, string>> = {
+  atmosphere: "atmosphere",
+  terrain: "terrain",
+  labels: "labels",
+  weatherRadar: "radar",
+  sound: "sound"
+};
+
 export function LearningPanel({
   selectedLocationId,
+  layers = {},
   onLayerRequest
 }: {
   selectedLocationId?: string;
+  layers?: Partial<Record<LayerId, boolean>>;
   onLayerRequest: (id: LayerId) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
@@ -62,15 +72,24 @@ export function LearningPanel({
           <p className={styles.disclaimer}>{content.illustrativeDisclaimer}</p>
         ) : null}
         <div className={styles.layers} aria-label="Suggested layers">
-          {content.suggestedLayers.map((layerId) => (
-            <button
-              key={layerId}
-              type="button"
-              onClick={() => onLayerRequest(layerId)}
-            >
-              Enable {layerId}
-            </button>
-          ))}
+          {content.suggestedLayers.map((layerId) => {
+            const layerLabel = layerLabels[layerId];
+            if (!layerLabel) {
+              return null;
+            }
+            const enabled = Boolean(layers[layerId]);
+
+            return (
+              <button
+                key={layerId}
+                type="button"
+                disabled={enabled}
+                onClick={() => onLayerRequest(layerId)}
+              >
+                {enabled ? "Enabled" : "Enable"} {layerLabel}
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>

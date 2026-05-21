@@ -74,10 +74,10 @@ export const cameraPresets = [
       latitude: 0,
       longitude: 0
     },
-    destinationHeightMeters: 1_200_000,
+    destinationHeightMeters: 6_500,
     orientation: {
       headingDegrees: 0,
-      pitchDegrees: -55,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -92,10 +92,10 @@ export const cameraPresets = [
       longitude: 86.925,
       heightMeters: 8849
     },
-    destinationHeightMeters: 220_000,
+    destinationHeightMeters: 120_000,
     orientation: {
-      headingDegrees: 45,
-      pitchDegrees: -38,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -112,8 +112,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 450_000,
     orientation: {
-      headingDegrees: 95,
-      pitchDegrees: -45,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -130,8 +130,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 1_400_000,
     orientation: {
-      headingDegrees: 25,
-      pitchDegrees: -50,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -148,8 +148,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 650_000,
     orientation: {
-      headingDegrees: 20,
-      pitchDegrees: -46,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -166,8 +166,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 1_800_000,
     orientation: {
-      headingDegrees: 110,
-      pitchDegrees: -52,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -184,8 +184,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 2_500_000,
     orientation: {
-      headingDegrees: 180,
-      pitchDegrees: -58,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -202,8 +202,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 1_200_000,
     orientation: {
-      headingDegrees: 75,
-      pitchDegrees: -50,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -220,8 +220,8 @@ export const cameraPresets = [
     },
     destinationHeightMeters: 2_600_000,
     orientation: {
-      headingDegrees: 20,
-      pitchDegrees: -60,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -236,10 +236,10 @@ export const cameraPresets = [
       longitude: -74.006,
       heightMeters: 10
     },
-    destinationHeightMeters: 45_000,
+    destinationHeightMeters: 3_200,
     orientation: {
-      headingDegrees: 25,
-      pitchDegrees: -35,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -254,10 +254,10 @@ export const cameraPresets = [
       longitude: 139.6503,
       heightMeters: 40
     },
-    destinationHeightMeters: 50_000,
+    destinationHeightMeters: 3_600,
     orientation: {
-      headingDegrees: 315,
-      pitchDegrees: -35,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -272,10 +272,10 @@ export const cameraPresets = [
       longitude: -0.1278,
       heightMeters: 15
     },
-    destinationHeightMeters: 48_000,
+    destinationHeightMeters: 3_200,
     orientation: {
-      headingDegrees: 70,
-      pitchDegrees: -37,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -290,10 +290,10 @@ export const cameraPresets = [
       longitude: 2.3522,
       heightMeters: 35
     },
-    destinationHeightMeters: 45_000,
+    destinationHeightMeters: 3_000,
     orientation: {
-      headingDegrees: 55,
-      pitchDegrees: -36,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -308,10 +308,10 @@ export const cameraPresets = [
       longitude: 55.2708,
       heightMeters: 20
     },
-    destinationHeightMeters: 52_000,
+    destinationHeightMeters: 4_200,
     orientation: {
-      headingDegrees: 120,
-      pitchDegrees: -34,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -326,10 +326,10 @@ export const cameraPresets = [
       longitude: -122.4194,
       heightMeters: 16
     },
-    destinationHeightMeters: 50_000,
+    destinationHeightMeters: 3_400,
     orientation: {
-      headingDegrees: 290,
-      pitchDegrees: -36,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {
@@ -344,10 +344,10 @@ export const cameraPresets = [
       longitude: 103.8198,
       heightMeters: 15
     },
-    destinationHeightMeters: 43_000,
+    destinationHeightMeters: 2_800,
     orientation: {
-      headingDegrees: 225,
-      pitchDegrees: -34,
+      headingDegrees: 0,
+      pitchDegrees: -90,
       rollDegrees: 0
     },
     durationSeconds: {

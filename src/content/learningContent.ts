@@ -31,7 +31,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["Latitude, elevation, ocean currents, and greenhouse gases all influence climate."],
     topics: ["climate"],
-    suggestedLayers: ["clouds", "weatherRadar"],
+    suggestedLayers: ["weatherRadar", "atmosphere"],
     sourceNoteIds: ["topic-climate"]
   },
   ecosystems: {
@@ -47,7 +47,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["Biodiversity can improve ecosystem resilience but does not make systems invulnerable."],
     topics: ["ecosystems", "biodiversity"],
-    suggestedLayers: ["clouds"],
+    suggestedLayers: ["weatherRadar"],
     sourceNoteIds: ["topic-ecosystems"]
   },
   atmosphere: {
@@ -58,12 +58,12 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     sections: [
       {
         heading: "A Dynamic Shell",
-        body: "Clouds, storms, auroras, and winds all express different layers and energy flows in the atmosphere."
+        body: "Storms, auroras, and winds all express different layers and energy flows in the atmosphere."
       }
     ],
     facts: ["Auroras are upper-atmosphere light emissions, not weather clouds."],
     topics: ["atmosphere"],
-    suggestedLayers: ["clouds", "weatherRadar", "aurora"],
+    suggestedLayers: ["weatherRadar", "atmosphere"],
     sourceNoteIds: ["topic-atmosphere"]
   },
   water: {
@@ -95,7 +95,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["Land ice loss contributes to sea-level rise."],
     topics: ["ice", "climate"],
-    suggestedLayers: ["terrain", "aurora"],
+    suggestedLayers: ["terrain", "atmosphere"],
     sourceNoteIds: ["topic-ice"]
   },
   "human-impact": {
@@ -111,7 +111,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["The same satellite view can show both infrastructure and environmental pressure."],
     topics: ["human-impact", "urbanization"],
-    suggestedLayers: ["buildings"],
+    suggestedLayers: ["labels"],
     sourceNoteIds: ["topic-human-impact"]
   },
   urbanization: {
@@ -127,7 +127,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["Night lights are useful for patterns, not exact population or wealth measurements."],
     topics: ["urbanization", "human-impact"],
-    suggestedLayers: ["buildings"],
+    suggestedLayers: ["labels"],
     sourceNoteIds: ["topic-night-lights"]
   },
   geology: {
@@ -159,7 +159,7 @@ export const topicContent: Record<LearningTopic, LearningPanelContent> = {
     ],
     facts: ["Biodiversity hotspots often coincide with unique habitats and high human pressure."],
     topics: ["biodiversity", "ecosystems"],
-    suggestedLayers: ["clouds"],
+    suggestedLayers: ["weatherRadar"],
     sourceNoteIds: ["topic-ecosystems"]
   }
 };
@@ -184,7 +184,7 @@ const locationContentFromLocation = (
       {
         heading: compact ? "City Signal" : "Earth System Lens",
         body: compact
-          ? "Use the city shortcut to compare settlement, buildings, and night-light patterns without moving the app away from its natural-wonders focus."
+          ? "Use the city shortcut to compare settlement, labels, and night-light patterns without moving the app away from its natural-wonders focus."
           : `This stop connects ${location.name} to ${location.topics
               .map((topic) => topic.replace("-", " "))
               .join(", ")}.`
@@ -193,11 +193,7 @@ const locationContentFromLocation = (
     facts: location.facts,
     topics: location.topics,
     suggestedLayers: location.suggestedLayers,
-    sourceNoteIds: location.sourceNoteIds,
-    illustrativeDisclaimer:
-      location.id === "aurora-region"
-        ? "The aurora layer in MyEarth is illustrative and is not a live space-weather forecast."
-        : undefined
+    sourceNoteIds: location.sourceNoteIds
   };
 };
 

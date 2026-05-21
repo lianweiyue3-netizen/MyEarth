@@ -51,8 +51,7 @@ function createLocation(id: string): EarthLocation {
     facts: ["High peak", "Himalayan range", "Glaciated terrain"],
     topics: ["terrain"],
     suggestedLayers: ["terrain"],
-    sourceNoteIds: ["test-source"],
-    buildingDescentPreferred: false
+    sourceNoteIds: ["test-source"]
   };
 }
 
@@ -67,6 +66,7 @@ describe("Jotai app state", () => {
     expect(store.get(qualityModeAtom)).toBe("auto");
     expect(store.get(effectiveQualityAtom)).toEqual(defaultQualityProfile);
     expect(store.get(layerVisibilityAtom)).toEqual(defaultLayerVisibility);
+    expect(store.get(layerVisibilityAtom).labels).toBe(false);
     expect(store.get(layerAvailabilityAtom)).toEqual(defaultLayerAvailability);
     expect(store.get(tourStateAtom)).toEqual(defaultTourState);
     expect(store.get(soundStateAtom)).toEqual(defaultSoundState);
@@ -89,12 +89,10 @@ describe("Jotai app state", () => {
     expect(after.weatherRadar).toBe(true);
 
     const unchangedLayerIds: LayerId[] = [
-      "clouds",
       "atmosphere",
       "terrain",
       "labels",
       "buildings",
-      "aurora",
       "sound"
     ];
     for (const layerId of unchangedLayerIds) {
@@ -119,7 +117,6 @@ describe("Jotai app state", () => {
     const after = store.get(layerAvailabilityAtom);
     expect(after).not.toBe(before);
     expect(after.weatherRadar).toEqual(availability);
-    expect(after.clouds).toEqual(before.clouds);
     expect(after.buildings).toEqual(before.buildings);
   });
 

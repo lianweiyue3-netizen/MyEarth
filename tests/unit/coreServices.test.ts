@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createCameraController } from "../../src/camera/cameraController";
 import { createLayerController } from "../../src/layers/layerController";
-import { createAuroraLayerAdapter } from "../../src/layers/auroraLayer";
 import { createBuildingsLayerAdapter } from "../../src/layers/buildingsLayer";
-import { createProceduralCloudLayerAdapter } from "../../src/layers/proceduralCloudLayer";
 import { createWeatherRadarLayerAdapter } from "../../src/layers/weatherRadarLayer";
 import { createWeatherRadarService } from "../../src/layers/weatherRadarService";
+import { getVisualMode } from "../../src/layers/visualModes";
 import { defaultQualityProfile, computeQualityProfile, downgradeQuality } from "../../src/performance/qualityController";
 import { createFrameHealthMonitor } from "../../src/performance/frameHealthMonitor";
+import { createCesiumGeocoderAdapter } from "../../src/search/cesiumGeocoderAdapter";
 import { createSearchService, type SearchAdapter } from "../../src/search/searchService";
 import { createSoundscape } from "../../src/sound/soundscape";
 import { createTourController } from "../../src/tour/tourController";
@@ -18,10 +18,22 @@ function createViewer() {
     camera: {
       flyTo: vi.fn(),
       setView: vi.fn(),
-      rotateRight: vi.fn()
+      rotateRight: vi.fn(),
+      positionCartographic: {
+        longitude: 2,
+        latitude: 0.6,
+        height: 8_000_000
+      },
+      pickEllipsoid: vi.fn(() => ({ cartesian: "center" }))
     },
     scene: {
-      globe: {},
+      canvas: {
+        clientWidth: 1200,
+        clientHeight: 900
+      },
+      globe: {
+        ellipsoid: { earth: true }
+      },
       primitives: {
         add: vi.fn((item) => item),
         remove: vi.fn(() => true)
@@ -38,6 +50,26 @@ function createViewer() {
           longitude,
           latitude,
           height
+        })),
+        fromRadians: vi.fn((longitude, latitude, height) => ({
+          longitude,
+          latitude,
+          height,
+          radians: true
+        }))
+      },
+      Cartesian2: vi.fn(function (
+        this: { x: number; y: number },
+        x: number,
+        y: number
+      ) {
+        this.x = x;
+        this.y = y;
+      }),
+      Cartographic: {
+        fromCartesian: vi.fn(() => ({
+          longitude: 1.25,
+          latitude: 0.35
         }))
       },
       Math: {
@@ -52,16 +84,15 @@ afterEach(() => {
 });
 
 describe("camera controller", () => {
-  it("flies to wonder and city presets and pauses on manual interaction", async () => {
-    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
+  it("flies to selected places without resuming orbit", async () => {
+    const requestAnimationFrame = vi.fn(() => 1);
+    vi.stubGlobal("requestAnimationFrame", requestAnimationFrame);
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     const viewer = createViewer();
-    const onBuildingsOpportunity = vi.fn();
     const onModeChange = vi.fn();
     const controller = createCameraController({
       viewer,
       reducedMotion: false,
-      onBuildingsOpportunity,
       onModeChange
     });
 
@@ -75,13 +106,23 @@ describe("camera controller", () => {
         duration: expect.any(Number)
       })
     );
+    expect(controller.getMode()).toBe("manual");
+    expect(requestAnimationFrame).not.toHaveBeenCalled();
 
     await controller.execute({
       type: "flyToLocation",
       locationId: "tokyo",
       source: "city"
     });
-    expect(onBuildingsOpportunity).toHaveBeenCalledWith("tokyo");
+    expect(controller.getMode()).toBe("manual");
+
+    await controller.execute({
+      type: "flyToCoordinates",
+      latitude: 35.6764,
+      longitude: 139.65
+    });
+    expect(controller.getMode()).toBe("manual");
+    expect(requestAnimationFrame).not.toHaveBeenCalled();
 
     controller.notifyManualInteraction();
     expect(controller.getMode()).toBe("manual");
@@ -112,26 +153,80 @@ describe("camera controller", () => {
       })
     ).rejects.toThrow("Unknown location id");
   });
+
+  it("recenters and levels manual wheel zoom views", () => {
+    const requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+      callback(0);
+      return 12;
+    });
+    vi.stubGlobal("requestAnimationFrame", requestAnimationFrame);
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    const viewer = createViewer();
+    const onModeChange = vi.fn();
+    const controller = createCameraController({
+      viewer,
+      reducedMotion: false,
+      onModeChange
+    });
+
+    controller.notifyManualZoom(240);
+
+    expect(requestAnimationFrame).toHaveBeenCalledOnce();
+    expect(viewer.camera.pickEllipsoid).toHaveBeenCalledWith(
+      { x: 600, y: 450 },
+      viewer.scene.globe.ellipsoid
+    );
+    expect(viewer.__myEarthCesium.Cartographic.fromCartesian).toHaveBeenCalledWith(
+      { cartesian: "center" },
+      viewer.scene.globe.ellipsoid
+    );
+    expect(viewer.__myEarthCesium.Cartesian3.fromRadians).toHaveBeenCalledWith(
+      1.25,
+      0.35,
+      8_000_000
+    );
+    expect(viewer.camera.setView).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orientation: expect.objectContaining({
+          heading: 0,
+          pitch: -Math.PI / 2,
+          roll: 0
+        })
+      })
+    );
+    expect(viewer.scene.requestRender).toHaveBeenCalledOnce();
+    expect(controller.getMode()).toBe("manual");
+    expect(onModeChange).toHaveBeenCalledWith("manual");
+  });
+
+  it("levels wheel zoom-in gestures too", () => {
+    const requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+      callback(0);
+      return 12;
+    });
+    vi.stubGlobal("requestAnimationFrame", requestAnimationFrame);
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    const viewer = createViewer();
+    const controller = createCameraController({
+      viewer,
+      reducedMotion: false
+    });
+
+    controller.notifyManualZoom(-120);
+
+    expect(requestAnimationFrame).toHaveBeenCalledOnce();
+    expect(viewer.camera.setView).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orientation: expect.objectContaining({
+          pitch: -Math.PI / 2
+        })
+      })
+    );
+    expect(controller.getMode()).toBe("manual");
+  });
 });
 
 describe("layer adapters", () => {
-  it("toggles clouds and aurora without network sources and respects low quality", async () => {
-    const viewer = createViewer();
-    const lowQuality = computeQualityProfile("low");
-    const context = {
-      viewer,
-      quality: lowQuality,
-      reducedMotion: true
-    };
-
-    await expect(
-      createProceduralCloudLayerAdapter().setVisible(context, true)
-    ).resolves.toMatchObject({ status: "disabled" });
-    await expect(
-      createAuroraLayerAdapter().setVisible(context, true)
-    ).resolves.toMatchObject({ status: "disabled" });
-  });
-
   it("loads buildings opportunistically and reports failures as recoverable", async () => {
     const viewer = createViewer();
     (viewer.__myEarthCesium as any).createOsmBuildingsAsync = vi
@@ -161,14 +256,14 @@ describe("layer adapters", () => {
       onAvailabilityChange,
       adapters: [
         {
-          id: "clouds",
+          id: "weatherRadar",
           setVisible: vi.fn().mockResolvedValue({ status: "available" })
         }
       ]
     });
 
-    await controller.setLayerVisibility("clouds", true);
-    expect(onAvailabilityChange).toHaveBeenCalledWith("clouds", {
+    await controller.setLayerVisibility("weatherRadar", true);
+    expect(onAvailabilityChange).toHaveBeenCalledWith("weatherRadar", {
       status: "available"
     });
   });
@@ -192,6 +287,127 @@ describe("layer adapters", () => {
       status: "failed",
       recoverable: true
     });
+  });
+
+  it("styles RainViewer imagery so the radar layer is visible when active", async () => {
+    const viewer = createViewer();
+    (viewer.__myEarthCesium as any).UrlTemplateImageryProvider = vi
+      .fn()
+      .mockImplementation((options) => ({ options }));
+    const adapter = createWeatherRadarLayerAdapter({
+      getLatestFrame: vi.fn().mockResolvedValue({
+        host: "https://tiles.example",
+        path: "/radar/latest",
+        time: 3
+      }),
+      clearCache: vi.fn()
+    });
+
+    await expect(
+      adapter.setVisible(
+        {
+          viewer,
+          quality: defaultQualityProfile,
+          reducedMotion: false
+        },
+        true
+      )
+    ).resolves.toEqual({ status: "available" });
+
+    const layer = viewer.imageryLayers.addImageryProvider.mock.results[0]?.value;
+    expect(layer).toMatchObject({
+      alpha: expect.any(Number),
+      brightness: expect.any(Number),
+      contrast: expect.any(Number),
+      saturation: expect.any(Number),
+      show: true
+    });
+    expect(layer.alpha).toBeGreaterThan(0.5);
+    expect(layer.brightness).toBeGreaterThan(1);
+    expect(
+      (viewer.__myEarthCesium as any).UrlTemplateImageryProvider
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        maximumLevel: 7,
+        url: "https://tiles.example/radar/latest/256/{z}/{x}/{y}/2/1_1.png"
+      })
+    );
+
+    await adapter.applyVisualMode?.(
+      {
+        viewer,
+        quality: defaultQualityProfile,
+        reducedMotion: false
+      },
+      getVisualMode("nightLights")
+    );
+    expect(layer.alpha).toBeCloseTo(0.528);
+  });
+
+  it("removes RainViewer imagery when radar is toggled off", async () => {
+    const viewer = createViewer();
+    (viewer.__myEarthCesium as any).UrlTemplateImageryProvider = vi
+      .fn()
+      .mockImplementation((options) => ({ options }));
+    const adapter = createWeatherRadarLayerAdapter({
+      getLatestFrame: vi.fn().mockResolvedValue({
+        host: "https://tiles.example",
+        path: "/radar/latest",
+        time: 3
+      }),
+      clearCache: vi.fn()
+    });
+    const context = {
+      viewer,
+      quality: defaultQualityProfile,
+      reducedMotion: false
+    };
+
+    await adapter.setVisible(context, true);
+    const layer = viewer.imageryLayers.addImageryProvider.mock.results[0]?.value;
+
+    await expect(adapter.setVisible(context, false)).resolves.toEqual({
+      status: "available"
+    });
+
+    expect(layer.show).toBe(false);
+    expect(viewer.imageryLayers.remove).toHaveBeenCalledWith(layer, true);
+    expect(viewer.scene.requestRender).toHaveBeenCalled();
+  });
+
+  it("does not add late RainViewer imagery after radar is toggled off", async () => {
+    const viewer = createViewer();
+    (viewer.__myEarthCesium as any).UrlTemplateImageryProvider = vi
+      .fn()
+      .mockImplementation((options) => ({ options }));
+    type RadarFrame = { host: string; path: string; time: number };
+    let resolveFrame: (frame: RadarFrame) => void = () => undefined;
+    const adapter = createWeatherRadarLayerAdapter({
+      getLatestFrame: vi.fn(
+        () =>
+          new Promise<RadarFrame>((resolve) => {
+            resolveFrame = resolve;
+          })
+      ),
+      clearCache: vi.fn()
+    });
+    const context = {
+      viewer,
+      quality: defaultQualityProfile,
+      reducedMotion: false
+    };
+
+    const enablePromise = adapter.setVisible(context, true);
+    await adapter.setVisible(context, false);
+    resolveFrame({
+      host: "https://tiles.example",
+      path: "/radar/latest",
+      time: 3
+    });
+    await expect(enablePromise).resolves.toEqual({ status: "available" });
+
+    expect(viewer.imageryLayers.addImageryProvider).not.toHaveBeenCalled();
+    expect(viewer.imageryLayers.remove).not.toHaveBeenCalled();
   });
 });
 
@@ -222,6 +438,60 @@ describe("weather radar service", () => {
 });
 
 describe("search service", () => {
+  it("normalizes Cesium geocoder city bbox responses for close search zoom", async () => {
+    const fetcher = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        features: [
+          {
+            properties: { label: "Tokyo, Japan" },
+            bbox: [139.079681, 35.328815, 140.459503, 36.02158]
+          }
+        ]
+      })
+    });
+    const adapter = createCesiumGeocoderAdapter(
+      "test-token",
+      fetcher as unknown as typeof fetch
+    );
+
+    const results = await adapter?.search("Tokyo");
+
+    expect(results).toHaveLength(1);
+    expect(results?.[0]).toEqual(
+      expect.objectContaining({
+        id: "Tokyo, Japan-0",
+        label: "Tokyo, Japan",
+        heightMeters: 6500
+      })
+    );
+    expect(results?.[0]?.longitude).toBeCloseTo(139.769592, 6);
+    expect(results?.[0]?.latitude).toBeCloseTo(35.6751975, 7);
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("keeps broad geocoder bbox responses at regional search zoom", async () => {
+    const fetcher = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        features: [
+          {
+            properties: { label: "Japan" },
+            bbox: [122.9, 24.0, 153.9, 45.6]
+          }
+        ]
+      })
+    });
+    const adapter = createCesiumGeocoderAdapter(
+      "test-token",
+      fetcher as unknown as typeof fetch
+    );
+
+    const results = await adapter?.search("Japan");
+
+    expect(results?.[0]?.heightMeters).toBeGreaterThan(1_000_000);
+  });
+
   it("short circuits empty and disabled searches", async () => {
     const adapter: SearchAdapter = { search: vi.fn() };
 
@@ -284,35 +554,27 @@ describe("tour controller", () => {
 describe("soundscape", () => {
   it("does not create audio until explicit enable", async () => {
     const states: unknown[] = [];
-    const AudioCtor = vi.fn().mockImplementation(() => ({
-      createGain: () => ({
-        gain: { value: 0 },
-        connect: vi.fn()
-      }),
-      createOscillator: () => ({
-        type: "sine",
-        frequency: { value: 0 },
-        connect: vi.fn(),
-        start: vi.fn(),
-        stop: vi.fn()
-      }),
-      destination: {},
-      resume: vi.fn().mockResolvedValue(undefined),
-      suspend: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined)
+    const createAudio = vi.fn(() => ({
+      currentTime: 0,
+      loop: false,
+      pause: vi.fn(),
+      play: vi.fn().mockResolvedValue(undefined),
+      preload: "",
+      src: "",
+      volume: 0
     }));
     const soundscape = createSoundscape(
       (state) => states.push(state),
-      AudioCtor as unknown as typeof AudioContext
+      createAudio
     );
 
     soundscape.prompt();
-    expect(AudioCtor).not.toHaveBeenCalled();
+    expect(createAudio).not.toHaveBeenCalled();
 
     await expect(soundscape.enable()).resolves.toMatchObject({
       status: "enabled"
     });
-    expect(AudioCtor).toHaveBeenCalledTimes(1);
+    expect(createAudio).toHaveBeenCalledTimes(1);
     await expect(soundscape.disable()).resolves.toEqual({ status: "disabled" });
   });
 });

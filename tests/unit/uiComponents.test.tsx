@@ -1,16 +1,18 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { LayerTogglePanel } from "../../src/ui/LayerTogglePanel";
 import { LearningPanel } from "../../src/ui/LearningPanel";
 import { LocationList } from "../../src/ui/LocationList";
 import { SearchControl } from "../../src/ui/SearchControl";
-import { VisualModeSelector } from "../../src/ui/VisualModeSelector";
 import { AttributionBar } from "../../src/ui/AttributionBar";
 import { CommandOverlay } from "../../src/ui/CommandOverlay";
 import { ErrorFallback } from "../../src/ui/ErrorFallback";
+import { FocusLocationReadout } from "../../src/ui/FocusLocationReadout";
+import { RadarStatusPanel } from "../../src/ui/RadarStatusPanel";
 import { defaultLayerAvailability, defaultLayerVisibility } from "../../src/app/appAtoms";
 import type { SearchService } from "../../src/search/searchService";
+import { DistanceMeasurePanel } from "../../src/ui/DistanceMeasurePanel";
 
 describe("UI components", () => {
   it("supports keyboard search selection with a mocked service", async () => {
@@ -56,27 +58,6 @@ describe("UI components", () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
 
-  it("changes visual mode through the segmented tabs", async () => {
-    const user = userEvent.setup();
-    const onChange = vi.fn();
-
-    render(<VisualModeSelector value="satellite" onChange={onChange} />);
-    await user.click(screen.getByRole("tab", { name: "Night" }));
-
-    expect(onChange).toHaveBeenCalledWith("nightLights");
-  });
-
-  it("supports visual mode keyboard navigation", async () => {
-    const onChange = vi.fn();
-
-    render(<VisualModeSelector value="satellite" onChange={onChange} />);
-    fireEvent.keyDown(screen.getByRole("tablist", { name: "Visual mode" }), {
-      key: "ArrowRight"
-    });
-
-    expect(onChange).toHaveBeenCalledWith("political");
-  });
-
   it("emits layer ids and displays disabled reasons", async () => {
     const user = userEvent.setup();
     const onToggle = vi.fn();
@@ -93,9 +74,12 @@ describe("UI components", () => {
       />
     );
 
-    await user.click(screen.getByRole("button", { name: "Clouds" }));
-    expect(onToggle).toHaveBeenCalledWith("clouds", false);
+    expect(screen.queryByRole("button", { name: "Clouds" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Aurora" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Atmosphere" }));
+    expect(onToggle).toHaveBeenCalledWith("atmosphere", false);
     expect(screen.getByText(/RainViewer offline/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "3D Buildings" })).not.toBeInTheDocument();
   });
 
   it("routes sound toggle separately from Cesium layer toggles", async () => {
@@ -136,14 +120,30 @@ describe("UI components", () => {
     render(
       <LearningPanel
         selectedLocationId="aurora-region"
+        layers={{ ...defaultLayerVisibility, atmosphere: false }}
         onLayerRequest={onLayer}
       />
     );
 
     expect(screen.getByRole("heading", { name: "Aurora Region" })).toBeInTheDocument();
-    expect(screen.getByText(/not a live space-weather forecast/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Enable aurora" }));
-    expect(onLayer).toHaveBeenCalledWith("aurora");
+    expect(screen.getByText(/space-weather events/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Enable aurora" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Enable atmosphere" }));
+    expect(onLayer).toHaveBeenCalledWith("atmosphere");
+  });
+
+  it("marks suggested layers that are already enabled", () => {
+    render(
+      <LearningPanel
+        selectedLocationId="tokyo"
+        layers={{ ...defaultLayerVisibility, labels: true }}
+        onLayerRequest={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Enabled labels" })
+    ).toBeDisabled();
   });
 
   it("renders attribution for active services", () => {
@@ -151,16 +151,78 @@ describe("UI components", () => {
       <AttributionBar
         layers={{
           ...defaultLayerVisibility,
-          buildings: true,
           weatherRadar: true
         }}
         visualMode="nightLights"
       />
     );
 
-    expect(screen.getByText(/OpenStreetMap/)).toBeInTheDocument();
+    expect(screen.queryByText(/OpenStreetMap/)).not.toBeInTheDocument();
     expect(screen.getByText("RainViewer")).toBeInTheDocument();
     expect(screen.getByText("NASA Black Marble")).toBeInTheDocument();
+  });
+
+  it("shows active radar status and intensity legend", () => {
+    render(<RadarStatusPanel />);
+
+    expect(screen.getByTestId("radar-status")).toBeInTheDocument();
+    expect(screen.getByText("Radar active")).toBeInTheDocument();
+    expect(screen.getByText("Recent RainViewer precipitation")).toBeInTheDocument();
+    expect(screen.getByLabelText("Radar intensity")).toHaveTextContent(
+      "LightMediumHeavy"
+    );
+  });
+
+  it("starts and clears distance measurement", async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    const onClear = vi.fn();
+
+    render(
+      <DistanceMeasurePanel
+        measurement={{
+          active: true,
+          points: [
+            { latitude: 0, longitude: 0 },
+            { latitude: 0, longitude: 1 }
+          ],
+          distanceMeters: 111_195
+        }}
+        onStart={onStart}
+        onClear={onClear}
+      />
+    );
+
+    expect(screen.getByText("111.2 km")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Measure" }));
+    await user.click(screen.getByRole("button", { name: "Clear" }));
+
+    expect(onStart).toHaveBeenCalledOnce();
+    expect(onClear).toHaveBeenCalledOnce();
+  });
+
+  it("renders street and state for a focused map point", () => {
+    render(
+      <FocusLocationReadout
+        location={{
+          status: "ready",
+          point: {
+            latitude: 40.758,
+            longitude: -73.9855,
+            cameraHeightMeters: 3200
+          },
+          streetName: "7th Avenue",
+          localityName: "New York",
+          stateName: "New York",
+          countryName: "United States",
+          displayName: "7th Avenue, New York, United States",
+          source: "OpenStreetMap"
+        }}
+      />
+    );
+
+    expect(screen.getByText("7th Avenue")).toBeInTheDocument();
+    expect(screen.getByText("New York, United States")).toBeInTheDocument();
   });
 
   it("renders safe missing-token fallback messaging", () => {
@@ -191,7 +253,6 @@ describe("UI components", () => {
       <CommandOverlay
         ready
         visualMode="satellite"
-        onVisualModeChange={vi.fn()}
         layers={defaultLayerVisibility}
         layerAvailability={defaultLayerAvailability}
         onLayerToggle={vi.fn()}
@@ -199,34 +260,44 @@ describe("UI components", () => {
         onSelectLocation={vi.fn()}
         searchService={service}
         onSearchSelect={vi.fn()}
-        tourState={{ status: "idle", currentIndex: 0 }}
-        onTourStart={vi.fn()}
-        onTourPause={vi.fn()}
-        onTourNext={vi.fn()}
-        onTourPrevious={vi.fn()}
         soundState={{ status: "notPrompted" }}
         onSoundEnable={vi.fn()}
         onSoundDisable={vi.fn()}
         onSoundVolume={vi.fn()}
         onSoundToggle={vi.fn()}
-        qualityProfile={{
-          mode: "auto",
-          effectiveTier: "balanced",
-          starDensity: "medium",
-          cinematicGlow: "reduced",
-          clouds: "simple",
-          aurora: "simple",
-          radar: "reducedOpacity",
-          buildings: "off",
-          terrainDetail: "normal",
-          transitionScale: 1
-        }}
+        distanceMeasurement={{ active: false, points: [] }}
+        onMeasureStart={vi.fn()}
+        onMeasureClear={vi.fn()}
         onReset={onReset}
       />
     );
 
     expect(screen.getByRole("heading", { name: "MyEarth" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Start" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Satellite" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Night" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Clean" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Start" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tour idle/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Distance/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Measure" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Quality:/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Mount Everest" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Places/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Search/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Layers/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mount Everest" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Search Earth")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Atmosphere" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Places/ }));
+    expect(screen.getByRole("button", { name: "Mount Everest" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Search/ }));
+    expect(screen.getByLabelText("Search Earth")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Layers/ }));
+    expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Radar" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^Distance/ }));
+    expect(screen.getByRole("button", { name: "Measure" })).toBeInTheDocument();
+    expect(screen.queryByTestId("radar-status")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Reset View" }));
     expect(onReset).toHaveBeenCalledOnce();
   });

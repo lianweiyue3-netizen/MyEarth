@@ -45,8 +45,15 @@ All checkboxes start unchecked. Mark a module complete only after its task file 
 - [x] Lint passes.
 - [x] Production build passes.
 - [x] Playwright smoke test passes.
-- [ ] Desktop visual QA passes.
-- [ ] Tablet visual QA passes.
-- [ ] Mobile visual QA passes.
+- [x] Desktop visual QA passes.
+- [x] Tablet visual QA passes.
+- [x] Mobile visual QA passes.
 - [x] Vercel environment variable setup is documented.
 - [x] Attribution and free-tier service notes are documented.
+
+## Visual QA Notes
+
+- [x] Desktop missing-token fallback visual QA passes without horizontal overflow or overlapping controls.
+- [x] Tablet missing-token fallback visual QA passes, including the scrolled bottom controls.
+- [x] Mobile missing-token fallback visual QA passes, including the scrolled bottom controls.
+- [x] Live Cesium visual QA passes with a real `VITE_CESIUM_ION_TOKEN` for terrain, imagery, geocoding, night lights, OSM Buildings, and optional layers.

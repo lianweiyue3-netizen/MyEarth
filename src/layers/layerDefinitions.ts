@@ -7,15 +7,23 @@ import type {
 
 export type CesiumLikeViewer = {
   scene?: {
-    globe?: Record<string, unknown>;
+    globe?: Record<string, unknown> & {
+      material?: unknown;
+    };
     primitives?: {
       add: (item: unknown) => unknown;
       remove: (item: unknown) => boolean;
     };
     requestRender?: () => void;
+    imageryLayers?: {
+      addImageryProvider?: (provider: unknown, index?: number) => unknown;
+      remove?: (layer: unknown, destroy?: boolean) => boolean;
+    };
+    verticalExaggeration?: number;
+    verticalExaggerationRelativeHeight?: number;
   };
   imageryLayers?: {
-    addImageryProvider?: (provider: unknown) => unknown;
+    addImageryProvider?: (provider: unknown, index?: number) => unknown;
     remove?: (layer: unknown, destroy?: boolean) => boolean;
   };
   terrainProvider?: unknown;

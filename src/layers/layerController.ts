@@ -6,17 +6,16 @@ import type {
   VisualModeId
 } from "../shared/domain";
 import { defaultQualityProfile } from "../performance/qualityController";
-import { createAuroraLayerAdapter } from "./auroraLayer";
-import { createBuildingsLayerAdapter } from "./buildingsLayer";
+import { setBaseImageryForVisualMode } from "./baseImageryLayer";
 import {
   available,
+  disabled,
   type CesiumLayerAdapter,
   type CesiumLikeViewer,
   type LayerAdapterContext
 } from "./layerDefinitions";
 import { createLabelLayerAdapter } from "./labelLayer";
 import { setNightLightsVisible } from "./nightLightsLayer";
-import { createProceduralCloudLayerAdapter } from "./proceduralCloudLayer";
 import { createTerrainLayerAdapter } from "./terrainLayer";
 import { getVisualMode } from "./visualModes";
 import { createWeatherRadarLayerAdapter } from "./weatherRadarLayer";
@@ -32,6 +31,8 @@ export type LayerControllerOptions = {
 
 export function createLayerController(options: LayerControllerOptions): LayerController {
   let quality = options.quality ?? defaultQualityProfile;
+  let currentVisualMode = getVisualMode("satellite");
+  let labelsVisible = false;
   const context = (): LayerAdapterContext => ({
     viewer: options.viewer,
     quality,
@@ -41,12 +42,9 @@ export function createLayerController(options: LayerControllerOptions): LayerCon
   const adapters =
     options.adapters ??
     [
-      createProceduralCloudLayerAdapter(),
       createTerrainLayerAdapter(),
       createLabelLayerAdapter(),
-      createBuildingsLayerAdapter(),
-      createWeatherRadarLayerAdapter(createWeatherRadarService()),
-      createAuroraLayerAdapter()
+      createWeatherRadarLayerAdapter(createWeatherRadarService())
     ];
 
   const byId = new Map(adapters.map((adapter) => [adapter.id, adapter]));
@@ -70,15 +68,20 @@ export function createLayerController(options: LayerControllerOptions): LayerCon
 
   return {
     async setVisualMode(modeId: VisualModeId) {
-      const mode = getVisualMode(modeId);
-      await setNightLightsVisible(context(), mode.imageryStrategy === "blackMarble");
+      currentVisualMode = getVisualMode(modeId);
+      await setBaseImageryForVisualMode(context(), currentVisualMode, labelsVisible);
+      await setNightLightsVisible(
+        context(),
+        currentVisualMode.imageryStrategy === "blackMarble"
+      );
 
       for (const adapter of adapters) {
         if (adapter.applyVisualMode) {
-          publish(adapter.id, await adapter.applyVisualMode(context(), mode));
+          publish(adapter.id, await adapter.applyVisualMode(context(), currentVisualMode));
         }
       }
 
+      publish("labels", available);
       publish("atmosphere", available);
     },
     async setLayerVisibility(id, visible) {
@@ -92,6 +95,26 @@ export function createLayerController(options: LayerControllerOptions): LayerCon
 
       if (id === "sound") {
         publish(id, available);
+        return;
+      }
+
+      if (id === "buildings") {
+        publish(id, disabled("3D buildings are hidden to keep the view unobstructed."));
+        return;
+      }
+
+      if (id === "labels") {
+        labelsVisible = visible;
+        const labelsAdapter = byId.get("labels");
+        const labelAvailability = labelsAdapter
+          ? await labelsAdapter.setVisible(context(), visible)
+          : available;
+        const imageryAvailability = await setBaseImageryForVisualMode(
+          context(),
+          currentVisualMode,
+          labelsVisible
+        );
+        publish(id, firstUnavailable(labelAvailability, imageryAvailability) ?? available);
         return;
       }
 
@@ -111,4 +134,10 @@ export function createLayerController(options: LayerControllerOptions): LayerCon
       }
     }
   };
+}
+
+function firstUnavailable(
+  ...availability: LayerAvailability[]
+): LayerAvailability | undefined {
+  return availability.find((entry) => entry.status !== "available");
 }

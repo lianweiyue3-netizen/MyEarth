@@ -15,13 +15,11 @@ export type VisualModeId =
   | "cleanGlobe";
 
 export type LayerId =
-  | "clouds"
   | "atmosphere"
   | "terrain"
   | "labels"
   | "buildings"
   | "weatherRadar"
-  | "aurora"
   | "sound";
 
 export type QualityMode = "auto" | "high" | "balanced" | "low";
@@ -92,7 +90,6 @@ export type EarthLocation = {
   topics: LearningTopic[];
   suggestedLayers: LayerId[];
   sourceNoteIds: string[];
-  buildingDescentPreferred: boolean;
 };
 
 export type LearningPanelContent = {
@@ -149,8 +146,6 @@ export type QualityProfile = {
   effectiveTier: "high" | "balanced" | "low";
   starDensity: "high" | "medium" | "low";
   cinematicGlow: "full" | "reduced" | "minimal";
-  clouds: "full" | "simple" | "off";
-  aurora: "full" | "simple" | "off";
   radar: "full" | "reducedOpacity" | "off";
   buildings: "on" | "off";
   terrainDetail: "normal" | "reduced";
@@ -195,6 +190,7 @@ export type CameraCommand =
 export type CameraController = {
   execute(command: CameraCommand): Promise<void>;
   notifyManualInteraction(): void;
+  notifyManualZoom(deltaY: number): void;
   getMode(): CameraMode;
   dispose(): void;
 };
@@ -213,6 +209,38 @@ export type SearchResult = {
   longitude: number;
   heightMeters?: number;
 };
+
+export type GlobeFocusPoint = {
+  latitude: number;
+  longitude: number;
+  cameraHeightMeters: number;
+};
+
+export type MapMeasurePoint = {
+  latitude: number;
+  longitude: number;
+};
+
+export type DistanceMeasurement = {
+  active: boolean;
+  points: MapMeasurePoint[];
+  distanceMeters?: number;
+};
+
+export type FocusedLocation =
+  | { status: "idle" }
+  | { status: "loading"; point: GlobeFocusPoint }
+  | {
+      status: "ready";
+      point: GlobeFocusPoint;
+      streetName?: string;
+      stateName?: string;
+      localityName?: string;
+      countryName?: string;
+      displayName: string;
+      source: "OpenStreetMap";
+    }
+  | { status: "failed"; point: GlobeFocusPoint; reason: string };
 
 export type WeatherRadarService = {
   getLatestFrame(signal?: AbortSignal): Promise<{

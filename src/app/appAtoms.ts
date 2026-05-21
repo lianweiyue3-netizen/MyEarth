@@ -30,13 +30,11 @@ export type AccessibilityState = {
 };
 
 export const layerIds = [
-  "clouds",
   "atmosphere",
   "terrain",
   "labels",
   "buildings",
   "weatherRadar",
-  "aurora",
   "sound"
 ] as const satisfies readonly LayerId[];
 
@@ -45,8 +43,6 @@ export const defaultQualityProfile: QualityProfile = {
   effectiveTier: "balanced",
   starDensity: "medium",
   cinematicGlow: "reduced",
-  clouds: "simple",
-  aurora: "simple",
   radar: "reducedOpacity",
   buildings: "off",
   terrainDetail: "normal",
@@ -54,24 +50,23 @@ export const defaultQualityProfile: QualityProfile = {
 };
 
 export const defaultLayerVisibility: Record<LayerId, boolean> = {
-  clouds: true,
   atmosphere: true,
   terrain: true,
-  labels: true,
+  labels: false,
   buildings: false,
   weatherRadar: false,
-  aurora: false,
   sound: false
 };
 
 export const defaultLayerAvailability: Record<LayerId, LayerAvailability> = {
-  clouds: { status: "available" },
   atmosphere: { status: "available" },
   terrain: { status: "available" },
   labels: { status: "available" },
-  buildings: { status: "available" },
+  buildings: {
+    status: "disabled",
+    reason: "3D buildings are hidden to keep the view unobstructed."
+  },
   weatherRadar: { status: "available" },
-  aurora: { status: "available" },
   sound: { status: "available" }
 };
 

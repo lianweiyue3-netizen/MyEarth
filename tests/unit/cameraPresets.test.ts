@@ -92,7 +92,39 @@ describe("camera presets", () => {
   });
 
   it("exposes the search-result fallback preset", () => {
-    expect(requireCameraPreset(SEARCH_RESULT_PRESET_ID).id).toBe("search-result");
+    const preset = requireCameraPreset(SEARCH_RESULT_PRESET_ID);
+
+    expect(preset.id).toBe("search-result");
+    expect(preset.destinationHeightMeters).toBeLessThanOrEqual(6_500);
+  });
+
+  it("uses close city inspection presets", () => {
+    for (const id of [
+      "new-york-city",
+      "tokyo",
+      "london",
+      "paris",
+      "dubai",
+      "san-francisco",
+      "singapore"
+    ]) {
+      expect(requireCameraPreset(id).destinationHeightMeters).toBeLessThanOrEqual(
+        4_500
+      );
+    }
+  });
+
+  it("keeps location and search cameras top-down", () => {
+    for (const id of [
+      SEARCH_RESULT_PRESET_ID,
+      ...expectedLocationPresetIds
+    ]) {
+      const preset = requireCameraPreset(id);
+
+      expect(preset.orientation.headingDegrees).toBe(0);
+      expect(preset.orientation.pitchDegrees).toBe(-90);
+      expect(preset.orientation.rollDegrees).toBe(0);
+    }
   });
 
   it("returns undefined for optional lookup misses and throws for required lookup misses", () => {

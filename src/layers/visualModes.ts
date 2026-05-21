@@ -6,13 +6,11 @@ export const visualModes: VisualModeDefinition[] = [
     label: "Satellite",
     description: "Natural imagery with balanced learning overlays.",
     defaultLayers: {
-      clouds: true,
       atmosphere: true,
       terrain: true,
       labels: false,
       buildings: false,
-      weatherRadar: false,
-      aurora: false
+      weatherRadar: false
     },
     imageryStrategy: "cesiumWorldImagery",
     terrainEmphasis: false,
@@ -25,8 +23,7 @@ export const visualModes: VisualModeDefinition[] = [
     defaultLayers: {
       labels: true,
       atmosphere: true,
-      terrain: true,
-      clouds: false
+      terrain: true
     },
     imageryStrategy: "cesiumLabels",
     terrainEmphasis: false,
@@ -40,7 +37,6 @@ export const visualModes: VisualModeDefinition[] = [
       labels: false,
       atmosphere: true,
       terrain: false,
-      clouds: false,
       buildings: false
     },
     imageryStrategy: "blackMarble",
@@ -54,7 +50,6 @@ export const visualModes: VisualModeDefinition[] = [
     defaultLayers: {
       terrain: true,
       labels: false,
-      clouds: false,
       atmosphere: true
     },
     imageryStrategy: "terrainEmphasis",
@@ -66,11 +61,9 @@ export const visualModes: VisualModeDefinition[] = [
     label: "Clean",
     description: "Minimal view with nonessential overlays hidden.",
     defaultLayers: {
-      clouds: false,
       labels: false,
       buildings: false,
       weatherRadar: false,
-      aurora: false,
       atmosphere: true,
       terrain: true
     },

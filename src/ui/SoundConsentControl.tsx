@@ -29,7 +29,11 @@ export function SoundConsentControl({
         onChange={(event) => onVolume(Number(event.target.value))}
       />
       <span className={styles.status}>
-        {state.status === "unavailable" ? state.reason : `Sound ${state.status}`}
+        {state.status === "unavailable"
+          ? state.reason
+          : enabled
+            ? "Music enabled"
+            : `Sound ${state.status}`}
       </span>
     </section>
   );

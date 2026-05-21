@@ -2,13 +2,10 @@ import type { CameraPreset, EarthLocation, LayerId } from "../shared/domain";
 import { sourceNotesById } from "./sourceNotes";
 
 const validLayerIds: LayerId[] = [
-  "clouds",
   "atmosphere",
   "terrain",
   "labels",
-  "buildings",
   "weatherRadar",
-  "aurora",
   "sound"
 ];
 

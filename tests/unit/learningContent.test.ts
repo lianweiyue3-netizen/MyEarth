@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  getLearningContentForLocation,
   locationPanelContentById,
   topicContent
 } from "../../src/content/learningContent";
@@ -34,9 +33,10 @@ describe("learning content", () => {
     }
   });
 
-  it("documents that aurora is illustrative", () => {
-    expect(
-      getLearningContentForLocation("aurora-region").illustrativeDisclaimer
-    ).toContain("illustrative");
+  it("does not suggest the removed aurora layer", () => {
+    for (const panel of Object.values(locationPanelContentById)) {
+      expect(panel.suggestedLayers).not.toContain("aurora");
+      expect(panel.illustrativeDisclaimer).toBeUndefined();
+    }
   });
 });

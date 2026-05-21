@@ -12,12 +12,35 @@ type CameraLikeViewer = {
     flyTo?: (options: Record<string, unknown>) => void;
     setView?: (options: Record<string, unknown>) => void;
     rotateRight?: (amount: number) => void;
+    positionCartographic?: {
+      longitude: number;
+      latitude: number;
+      height: number;
+    };
+    pickEllipsoid?: (windowPosition: unknown, ellipsoid?: unknown) => unknown;
   };
   scene?: {
+    canvas?: {
+      clientWidth: number;
+      clientHeight: number;
+    };
+    globe?: {
+      ellipsoid?: unknown;
+    };
     requestRender?: () => void;
   };
   __myEarthCesium?: {
-    Cartesian3?: { fromDegrees: (lon: number, lat: number, height: number) => unknown };
+    Cartesian3?: {
+      fromDegrees: (lon: number, lat: number, height: number) => unknown;
+      fromRadians?: (lon: number, lat: number, height: number) => unknown;
+    };
+    Cartesian2?: new (x: number, y: number) => unknown;
+    Cartographic?: {
+      fromCartesian: (
+        cartesian: unknown,
+        ellipsoid?: unknown
+      ) => { longitude: number; latitude: number };
+    };
     Math?: { toRadians: (degrees: number) => number };
   };
 };
@@ -26,12 +49,12 @@ export type CameraControllerOptions = {
   viewer: CameraLikeViewer;
   reducedMotion: boolean;
   onModeChange?: (mode: CameraMode) => void;
-  onBuildingsOpportunity?: (locationId: string) => void;
 };
 
 export function createCameraController(options: CameraControllerOptions): CameraController {
   let mode: CameraMode = "introOrbit";
   let orbitFrame: number | undefined;
+  let zoomAlignFrame: number | undefined;
   let disposed = false;
 
   const setMode = (next: CameraMode) => {
@@ -46,9 +69,17 @@ export function createCameraController(options: CameraControllerOptions): Camera
     }
   };
 
+  const stopZoomAlignment = () => {
+    if (zoomAlignFrame !== undefined) {
+      cancelAnimationFrame(zoomAlignFrame);
+      zoomAlignFrame = undefined;
+    }
+  };
+
   const startOrbit = (nextMode: CameraMode) => {
     setMode(nextMode);
     stopOrbit();
+    stopZoomAlignment();
     if (options.reducedMotion || disposed) {
       return;
     }
@@ -61,7 +92,11 @@ export function createCameraController(options: CameraControllerOptions): Camera
     orbitFrame = requestAnimationFrame(tick);
   };
 
-  const flyToPreset = async (preset: CameraPreset, nextMode: CameraMode) => {
+  const flyToPreset = async (
+    preset: CameraPreset,
+    nextMode: CameraMode,
+    resumeOrbit = true
+  ) => {
     stopOrbit();
     setMode(nextMode);
 
@@ -94,9 +129,65 @@ export function createCameraController(options: CameraControllerOptions): Camera
     });
 
     await Promise.resolve();
-    if (!disposed && mode !== "manual") {
-      startOrbit("idleOrbit");
+    if (disposed || mode === "manual") {
+      return;
     }
+
+    if (resumeOrbit) {
+      startOrbit("idleOrbit");
+    } else {
+      setMode("manual");
+    }
+  };
+
+  const alignZoomedOutView = () => {
+    const camera = options.viewer.camera;
+    const position = camera?.positionCartographic;
+    const cartesian = options.viewer.__myEarthCesium?.Cartesian3;
+    const Cartesian2 = options.viewer.__myEarthCesium?.Cartesian2;
+    const Cartographic = options.viewer.__myEarthCesium?.Cartographic;
+    const toRadians =
+      options.viewer.__myEarthCesium?.Math?.toRadians ?? ((value: number) => value);
+
+    if (!position || !cartesian || !camera?.setView) {
+      return;
+    }
+
+    const canvas = options.viewer.scene?.canvas;
+    const ellipsoid = options.viewer.scene?.globe?.ellipsoid;
+    const centerCartesian =
+      canvas && Cartesian2 && camera.pickEllipsoid
+        ? camera.pickEllipsoid(
+            new Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2),
+            ellipsoid
+          )
+        : undefined;
+    const centerCartographic =
+      centerCartesian && Cartographic
+        ? Cartographic.fromCartesian(centerCartesian, ellipsoid)
+        : position;
+
+    const destination = cartesian.fromRadians
+      ? cartesian.fromRadians(
+          centerCartographic.longitude,
+          centerCartographic.latitude,
+          position.height
+        )
+      : cartesian.fromDegrees(
+          (centerCartographic.longitude * 180) / Math.PI,
+          (centerCartographic.latitude * 180) / Math.PI,
+          position.height
+        );
+
+    camera.setView({
+      destination,
+      orientation: {
+        heading: 0,
+        pitch: toRadians(-90),
+        roll: 0
+      }
+    });
+    options.viewer.scene?.requestRender?.();
   };
 
   return {
@@ -140,13 +231,10 @@ export function createCameraController(options: CameraControllerOptions): Camera
           throw new Error(`Unknown location id: ${command.locationId}`);
         }
 
-        if (location.kind === "city" && location.buildingDescentPreferred) {
-          options.onBuildingsOpportunity?.(location.id);
-        }
-
         await flyToPreset(
           preset,
-          location.kind === "city" ? "flyingToCity" : "flyingToWonder"
+          location.kind === "city" ? "flyingToCity" : "flyingToWonder",
+          false
         );
         return;
       }
@@ -167,13 +255,29 @@ export function createCameraController(options: CameraControllerOptions): Camera
             destinationHeightMeters:
               command.heightMeters ?? preset.destinationHeightMeters
           },
-          "flyingToCity"
+          "flyingToCity",
+          false
         );
       }
     },
     notifyManualInteraction() {
       stopOrbit();
+      stopZoomAlignment();
       setMode("manual");
+    },
+    notifyManualZoom(_deltaY) {
+      stopOrbit();
+      setMode("manual");
+
+      if (disposed) {
+        return;
+      }
+
+      stopZoomAlignment();
+      zoomAlignFrame = requestAnimationFrame(() => {
+        zoomAlignFrame = undefined;
+        alignZoomedOutView();
+      });
     },
     getMode() {
       return mode;
@@ -181,6 +285,7 @@ export function createCameraController(options: CameraControllerOptions): Camera
     dispose() {
       disposed = true;
       stopOrbit();
+      stopZoomAlignment();
     }
   };
 }

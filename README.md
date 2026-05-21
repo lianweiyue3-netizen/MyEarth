@@ -57,7 +57,8 @@ Use a dedicated Cesium ion token for MyEarth, not an account default token. Rest
 
 - CesiumJS and Cesium ion power globe rendering, terrain, imagery, geocoding, NASA Black Marble night lights, and OSM Buildings where available.
 - OpenStreetMap attribution must remain visible when OSM Buildings are active.
+- OpenStreetMap Nominatim powers the street/state readout when the camera is close to the surface.
 - RainViewer radar metadata is fetched from `https://api.rainviewer.com/public/weather-maps.json`; radar is best-effort, limited to maximum zoom 7, cached for 10 minutes, and attributed to RainViewer when active.
-- Procedural clouds and aurora are local illustrative overlays. The aurora layer is not a live space-weather feed.
+- The aurora layer is a local illustrative overlay and is not a live space-weather feed.
 - Web Audio starts only after explicit user opt-in.
 - Telemetry is no-op by default and, when configured, accepts only anonymous typed performance and error categories. Search query text and precise user location are not collected.

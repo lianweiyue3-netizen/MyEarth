@@ -4,7 +4,7 @@
 
 Renewed on 2026-05-19 after the latest continuation pass.
 
-The project is a Vite React TypeScript app using CesiumJS, CSS Modules, Jotai, Vitest, React Testing Library, and Playwright. All implementation module task files are complete in `tasks/progress.md`; only visual QA milestones remain unchecked.
+The project is a Vite React TypeScript app using CesiumJS, CSS Modules, Jotai, Vitest, React Testing Library, and Playwright. All implementation module task files and integration milestones are complete in `tasks/progress.md`.
 
 Implemented baseline:
 
@@ -28,15 +28,23 @@ Implemented baseline:
 
 - Read `HANDOFF.md`, `prompt.md`, and `tasks/progress.md`.
 - Confirmed there is no root `progress.md`; the active progress tracker is `tasks/progress.md`.
-- Confirmed `VITE_CESIUM_ION_TOKEN` is not set in the current environment.
-- Ran a production build successfully.
-- Started a local preview at `http://127.0.0.1:4173`, opened the app in the browser, and confirmed the missing-token fallback scene renders with the command overlay instead of a blank page.
-- Stopped the local preview server before handoff.
-- Did not update `tasks/progress.md` because full desktop/tablet/mobile visual QA was not completed.
+- Added a local ignored `.env.local` with `VITE_CESIUM_ION_TOKEN` for live QA.
+- Fixed production Cesium startup by replacing the dynamic `import("cesium")`, which Vite built into a broken self-reference, with the plugin-compatible static Cesium import.
+- Fixed live Cesium geocoder normalization for bbox-only responses using `properties.label`.
+- Updated app shell and e2e tests so they remain stable whether a local token is present or absent.
+- Re-ran the required validation suite: typecheck, lint, unit tests, production build, and Playwright e2e all pass.
+- Ran production preview visual QA for the missing-token fallback at desktop, tablet, and mobile breakpoints.
+- Re-captured the missing-token fallback screenshots after the latest Playwright run so the `test-results/visual-qa-*.png` artifacts are present again.
+- Fixed fallback visual overlap by moving attribution into overlay flow, hiding the scene-level token card on stacked layouts, lifting the desktop token card away from bottom controls, and surfacing visible token guidance in the search status.
+- Captured screenshots under `test-results/visual-qa-desktop.png`, `test-results/visual-qa-tablet.png`, `test-results/visual-qa-tablet-bottom.png`, `test-results/visual-qa-mobile.png`, and `test-results/visual-qa-mobile-bottom.png`.
+- Added `tasks/progress.md` visual QA notes for the missing-token fallback pass.
+- Ran live Cesium production preview visual QA with the local token; canvas rendered at desktop/tablet/mobile, geocoding returned results, night mode/buildings/radar toggles reported no layer failure reasons, and Cesium/RainViewer/NASA/OpenStreetMap attribution remained visible.
+- Captured live screenshots under `test-results/visual-qa-live-desktop.png`, `test-results/visual-qa-live-tablet.png`, `test-results/visual-qa-live-tablet-bottom.png`, `test-results/visual-qa-live-mobile.png`, and `test-results/visual-qa-live-mobile-bottom.png`.
+- Marked the desktop, tablet, mobile, and live Cesium visual QA milestones complete in `tasks/progress.md`.
 
 ## Verification Last Run
 
-Previously passing full checks:
+Latest passing full checks:
 
 ```text
 npm run typecheck
@@ -46,21 +54,13 @@ npm run build
 npm run test:e2e
 ```
 
-Previously observed results:
+Latest observed results:
 
 - TypeScript: passed.
 - ESLint: passed.
-- Vitest: 14 files, 86 tests passed.
+- Vitest: 14 files, 87 tests passed.
 - Vite production build: passed.
 - Playwright: 15 tests passed across desktop, tablet, and mobile Chromium projects.
-
-Latest command from this session:
-
-```text
-npm run build
-```
-
-Result: passed.
 
 Playwright Chromium was installed earlier with:
 
@@ -70,15 +70,19 @@ npx playwright install chromium
 
 ## Progress Tracker
 
-`tasks/progress.md` marks all module task files complete after reconciling implementation and tests.
+`tasks/progress.md` marks all module task files and integration milestones complete after reconciling implementation, tests, fallback QA, and live Cesium visual QA.
 
-Still unchecked in `tasks/progress.md`:
+Completed fallback screenshot review in this tokenless environment:
 
-- Desktop visual QA passes.
-- Tablet visual QA passes.
-- Mobile visual QA passes.
+- Desktop missing-token fallback.
+- Tablet missing-token fallback top and scrolled-bottom views.
+- Mobile missing-token fallback top and scrolled-bottom views.
 
-These QA milestones still need screenshot review. Prefer running with a real `VITE_CESIUM_ION_TOKEN` so Cesium terrain, imagery, geocoding, Black Marble night lights, OSM Buildings, and optional layers can be visually inspected. Without a token, only the required fallback experience can be visually reviewed.
+Completed live Cesium screenshot review with local `.env.local` token:
+
+- Desktop live Cesium scene with search, night mode, buildings, radar, and attribution visible.
+- Tablet live Cesium top and scrolled-bottom views.
+- Mobile live Cesium top and scrolled-bottom views.
 
 ## Important Constraints
 
@@ -97,12 +101,9 @@ These QA milestones still need screenshot review. Prefer running with a real `VI
 
 ## Suggested Next Work
 
-1. Set `VITE_CESIUM_ION_TOKEN` in the environment for a live Cesium QA pass.
-2. Run the app and capture desktop, tablet, and mobile screenshots.
-3. Inspect for blank canvases, cropped panels, overlapping controls, inaccessible focus states, and unreadable text.
-4. Test real Cesium ion services: terrain, geocoding, Black Marble, and OSM Buildings.
-5. Confirm the RainViewer radar layer against live metadata when the external API is reachable.
-6. If visual QA passes, mark the three remaining visual QA milestones in `tasks/progress.md`.
+1. Deploy to Vercel with `VITE_CESIUM_ION_TOKEN` configured in project environment variables.
+2. Restrict the Cesium ion token to the production domain and required public asset/geocoding scopes.
+3. Run one final deployed URL smoke check after Vercel publishes.
 
 ## Local Commands
 

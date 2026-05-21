@@ -1,14 +1,21 @@
 import type { LayerAvailability, LayerId } from "../shared/domain";
 import styles from "./LayerTogglePanel.module.css";
 
-const layerLabels: Record<LayerId, string> = {
-  clouds: "Clouds",
+const visibleLayerIds = [
+  "atmosphere",
+  "terrain",
+  "labels",
+  "weatherRadar",
+  "sound"
+] as const satisfies readonly LayerId[];
+
+type VisibleLayerId = (typeof visibleLayerIds)[number];
+
+const layerLabels: Record<VisibleLayerId, string> = {
   atmosphere: "Atmosphere",
   terrain: "Terrain",
   labels: "Labels",
-  buildings: "Buildings",
   weatherRadar: "Radar",
-  aurora: "Aurora",
   sound: "Sound"
 };
 
@@ -28,7 +35,7 @@ export function LayerTogglePanel({
   return (
     <section className={styles.panel} aria-label="Layer toggles">
       <div className={styles.grid}>
-        {(Object.keys(layerLabels) as LayerId[]).map((id) => {
+        {visibleLayerIds.map((id) => {
           const layerAvailability = availability[id];
           const unavailable = layerAvailability.status !== "available";
           const reason =
@@ -55,7 +62,7 @@ export function LayerTogglePanel({
           );
         })}
       </div>
-      {(Object.keys(availability) as LayerId[]).map((id) => {
+      {visibleLayerIds.map((id) => {
         const entry = availability[id];
         return entry.status === "available" ? null : (
           <p key={id} className={styles.reason}>

@@ -5,32 +5,37 @@ import { CesiumScene } from "../cesium/CesiumScene";
 import { readAppConfig } from "../config/env";
 import { earthLocations } from "../content/locations";
 import { createCesiumGeocoderAdapter } from "../search/cesiumGeocoderAdapter";
+import { createReverseGeocoder } from "../search/reverseGeocoder";
 import { createSearchService } from "../search/searchService";
+import { getVisualMode } from "../layers/visualModes";
+import {
+  addDistancePoint,
+  emptyDistanceMeasurement
+} from "../measurement/distanceMeasurement";
 import { createSoundscape } from "../sound/soundscape";
-import { createTourController } from "../tour/tourController";
-import { computeQualityProfile } from "../performance/qualityController";
 import { createPreferencesStore } from "../persistence/preferences";
 import { createTelemetryClient } from "../telemetry/telemetry";
 import type {
   AppError,
   CameraCommand,
+  DistanceMeasurement,
   EarthLocation,
+  FocusedLocation,
+  GlobeFocusPoint,
   LayerId,
+  MapMeasurePoint,
   SearchResult,
-  Soundscape,
-  TourController
+  Soundscape
 } from "../shared/domain";
 import {
   accessibilityAtom,
   cameraModeAtom,
-  effectiveQualityAtom,
   layerAvailabilityAtom,
   layerVisibilityAtom,
   loadingPhaseAtom,
   qualityModeAtom,
   selectedLocationIdAtom,
   soundStateAtom,
-  tourStateAtom,
   visualModeAtom
 } from "./appAtoms";
 import {
@@ -58,13 +63,11 @@ function MyEarthApp() {
   const reducedMotion = useReducedMotion();
   const [loadingPhase, setLoadingPhase] = useAtom(loadingPhaseAtom);
   const [cameraMode, setCameraMode] = useAtom(cameraModeAtom);
-  const [selectedLocationId, setSelectedLocationId] = useAtom(selectedLocationIdAtom);
+  const [selectedLocationId] = useAtom(selectedLocationIdAtom);
   const [visualMode, setVisualMode] = useAtom(visualModeAtom);
   const [qualityMode, setQualityMode] = useAtom(qualityModeAtom);
-  const [effectiveQuality, setEffectiveQuality] = useAtom(effectiveQualityAtom);
   const [layers, setLayers] = useAtom(layerVisibilityAtom);
   const [layerAvailability] = useAtom(layerAvailabilityAtom);
-  const [tourState, setTourState] = useAtom(tourStateAtom);
   const [soundState, setSoundState] = useAtom(soundStateAtom);
   const [accessibility, setAccessibility] = useAtom(accessibilityAtom);
   const setLayerVisibility = useSetAtom(setLayerVisibilityActionAtom);
@@ -72,8 +75,13 @@ function MyEarthApp() {
   const selectLocation = useSetAtom(selectLocationActionAtom);
   const [fatalError, setFatalError] = useState<AppError>();
   const [cameraCommand, setCameraCommand] = useState<CameraCommand>();
+  const [focusPoint, setFocusPoint] = useState<GlobeFocusPoint>();
+  const [distanceMeasurement, setDistanceMeasurement] =
+    useState<DistanceMeasurement>(emptyDistanceMeasurement);
+  const [focusedLocation, setFocusedLocation] = useState<FocusedLocation>({
+    status: "idle"
+  });
   const didLoadPreferencesRef = useRef(false);
-  const tourControllerRef = useRef<TourController>();
   const soundscapeRef = useRef<Soundscape>();
 
   const searchService = useMemo(
@@ -84,6 +92,43 @@ function MyEarthApp() {
       ),
     [config.cesiumIonToken]
   );
+  const reverseGeocoder = useMemo(() => createReverseGeocoder(), []);
+
+  useEffect(() => {
+    if (!focusPoint) {
+      setFocusedLocation({ status: "idle" });
+      return;
+    }
+
+    const controller = new AbortController();
+    setFocusedLocation({ status: "loading", point: focusPoint });
+    void reverseGeocoder
+      .reverse(focusPoint, controller.signal)
+      .then((location) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setFocusedLocation(
+          location ?? {
+            status: "failed",
+            point: focusPoint,
+            reason: "Address unavailable for this point."
+          }
+        );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setFocusedLocation({
+            status: "failed",
+            point: focusPoint,
+            reason: "Address lookup unavailable."
+          });
+        }
+      });
+
+    return () => controller.abort();
+  }, [focusPoint, reverseGeocoder]);
 
   useEffect(() => {
     if (didLoadPreferencesRef.current) {
@@ -94,6 +139,13 @@ function MyEarthApp() {
     const stored = preferences.load();
     if (stored.visualMode) {
       setVisualMode(stored.visualMode);
+      const defaultLayers = getVisualMode(stored.visualMode).defaultLayers;
+      setLayers((current) => ({ ...current, ...defaultLayers }));
+      for (const [layerId, visible] of Object.entries(defaultLayers) as Array<
+        [LayerId, boolean]
+      >) {
+        setLayerVisibility({ layerId, visible });
+      }
     }
     if (stored.qualityMode) {
       setQualityMode(stored.qualityMode);
@@ -110,6 +162,8 @@ function MyEarthApp() {
     preferences,
     reducedMotion,
     setAccessibility,
+    setLayerVisibility,
+    setLayers,
     setLoadingPhase,
     setQualityMode,
     setSoundState,
@@ -119,10 +173,6 @@ function MyEarthApp() {
   useEffect(() => {
     setAccessibility((current) => ({ ...current, reducedMotion }));
   }, [reducedMotion, setAccessibility]);
-
-  useEffect(() => {
-    setEffectiveQuality(computeQualityProfile(qualityMode, undefined, reducedMotion));
-  }, [qualityMode, reducedMotion, setEffectiveQuality]);
 
   useEffect(() => {
     const existing = preferences.load();
@@ -146,23 +196,6 @@ function MyEarthApp() {
     soundscapeRef.current = createSoundscape(setSoundState);
     return () => soundscapeRef.current?.dispose();
   }, [setSoundState]);
-
-  useEffect(() => {
-    tourControllerRef.current = createTourController({
-      onStateChange: setTourState,
-      onSelectLocation: setSelectedLocationId,
-      onCameraCommand: async (command) => setCameraCommand({ ...command }),
-      onError: () =>
-        setLayerAvailability({
-          layerId: "terrain",
-          availability: {
-            status: "failed",
-            reason: "Tour camera transition failed.",
-            recoverable: true
-          }
-        })
-    });
-  }, [setLayerAvailability, setSelectedLocationId, setTourState]);
 
   useEffect(() => {
     if (loadingPhase !== "ready" || soundState.status !== "notPrompted") {
@@ -194,9 +227,11 @@ function MyEarthApp() {
       locationId: location.id,
       source: location.kind
     });
-    if (location.kind === "city") {
-      handleLayerToggle("buildings", true);
-    }
+    setFocusPoint({
+      latitude: location.coordinates.latitude,
+      longitude: location.coordinates.longitude,
+      cameraHeightMeters: location.coordinates.heightMeters ?? 0
+    });
   };
 
   const handleSearchSelect = (result: SearchResult) => {
@@ -206,11 +241,34 @@ function MyEarthApp() {
       longitude: result.longitude,
       heightMeters: result.heightMeters
     });
+    setFocusPoint({
+      latitude: result.latitude,
+      longitude: result.longitude,
+      cameraHeightMeters: result.heightMeters ?? 0
+    });
   };
 
   const handleLayerToggle = (id: LayerId, visible: boolean) => {
     setLayerVisibility({ layerId: id, visible });
     setLayers((current) => ({ ...current, [id]: visible }));
+  };
+
+  const handleMeasureStart = () => {
+    setDistanceMeasurement((current) => ({
+      active: true,
+      points: current.points.length === 2 ? [] : current.points,
+      distanceMeters: current.points.length === 2 ? undefined : current.distanceMeters
+    }));
+  };
+
+  const handleMeasurePoint = (point: MapMeasurePoint) => {
+    setDistanceMeasurement((current) =>
+      current.active ? addDistancePoint(current, point) : current
+    );
+  };
+
+  const handleMeasureClear = () => {
+    setDistanceMeasurement(emptyDistanceMeasurement);
   };
 
   const handleError = (error: AppError) => {
@@ -244,13 +302,15 @@ function MyEarthApp() {
         onLayerAvailabilityChange={(layerId, availability) =>
           setLayerAvailability({ layerId, availability })
         }
+        onFocusPointChange={setFocusPoint}
+        distanceMeasurement={distanceMeasurement}
+        onMeasurePoint={handleMeasurePoint}
         onError={handleError}
       />
       <GlobeLoadingScreen phase={loadingPhase} visible={!ready} />
       <CommandOverlay
         ready={ready}
         visualMode={visualMode}
-        onVisualModeChange={setVisualMode}
         layers={layers}
         layerAvailability={layerAvailability}
         onLayerToggle={handleLayerToggle}
@@ -258,11 +318,6 @@ function MyEarthApp() {
         onSelectLocation={handleSelectLocation}
         searchService={searchService}
         onSearchSelect={handleSearchSelect}
-        tourState={tourState}
-        onTourStart={() => tourControllerRef.current?.start()}
-        onTourPause={() => tourControllerRef.current?.pause()}
-        onTourNext={() => tourControllerRef.current?.next()}
-        onTourPrevious={() => tourControllerRef.current?.previous()}
         soundState={soundState}
         onSoundEnable={() => {
           void soundscapeRef.current?.enable();
@@ -282,8 +337,14 @@ function MyEarthApp() {
             handleLayerToggle("sound", true);
           }
         }}
-        qualityProfile={effectiveQuality}
-        onReset={() => setCameraCommand({ type: "resetView" })}
+        distanceMeasurement={distanceMeasurement}
+        onMeasureStart={handleMeasureStart}
+        onMeasureClear={handleMeasureClear}
+        focusedLocation={focusedLocation}
+        onReset={() => {
+          setCameraCommand({ type: "resetView" });
+          setFocusPoint(undefined);
+        }}
       />
       <span hidden data-testid="camera-mode">
         {cameraMode}

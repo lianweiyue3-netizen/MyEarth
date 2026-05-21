@@ -11,13 +11,11 @@ type TelemetryClientOptions = {
 type SerializedTelemetryEvent = TelemetryEvent;
 
 const validLayerIds: ReadonlySet<LayerId> = new Set([
-  "clouds",
   "atmosphere",
   "terrain",
   "labels",
   "buildings",
   "weatherRadar",
-  "aurora",
   "sound"
 ]);
 

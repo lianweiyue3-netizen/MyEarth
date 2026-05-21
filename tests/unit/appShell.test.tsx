@@ -4,11 +4,13 @@ import { App } from "../../src/app/App";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   window.localStorage.clear();
 });
 
 describe("App shell", () => {
   it("shows loading before first frame and safe missing-token guidance", async () => {
+    vi.stubEnv("VITE_CESIUM_ION_TOKEN", "");
     vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
 
     render(<App />);
@@ -19,6 +21,7 @@ describe("App shell", () => {
   });
 
   it("shows the command overlay after the first frame", async () => {
+    vi.stubEnv("VITE_CESIUM_ION_TOKEN", "");
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
       callback(0);
       return 1;

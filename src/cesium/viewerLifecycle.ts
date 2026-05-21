@@ -1,5 +1,8 @@
+import * as Cesium from "cesium";
 import { isWebGlAvailable } from "../performance/deviceProfile";
 import type { ViewerCreateOptions, ViewerCreateResult } from "./cesiumTypes";
+
+export const BUILDING_INSPECTION_MINIMUM_ZOOM_METERS = 80;
 
 export async function createMyEarthViewer(
   options: ViewerCreateOptions
@@ -26,7 +29,6 @@ export async function createMyEarthViewer(
   }
 
   try {
-    const Cesium = await import("cesium");
     Cesium.Ion.defaultAccessToken = options.token;
 
     const viewer = new Cesium.Viewer(options.container, {
@@ -41,6 +43,7 @@ export async function createMyEarthViewer(
       selectionIndicator: false,
       timeline: false,
       vrButton: false,
+      baseLayer: false,
       shouldAnimate: true
     });
 
@@ -49,6 +52,9 @@ export async function createMyEarthViewer(
       viewer.scene.skyAtmosphere.show = true;
     }
     viewer.scene.requestRenderMode = false;
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance =
+      BUILDING_INSPECTION_MINIMUM_ZOOM_METERS;
+    viewer.scene.screenSpaceCameraController.maximumZoomDistance = 28_000_000;
     (viewer as any).__myEarthCesium = Cesium;
 
     return { status: "ready", viewer };

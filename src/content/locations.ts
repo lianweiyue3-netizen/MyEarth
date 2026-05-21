@@ -21,9 +21,8 @@ export const wonderLocations: EarthLocation[] = [
       "Glaciers around Everest feed major Asian river systems."
     ],
     topics: ["terrain", "geology", "ice"],
-    suggestedLayers: ["terrain", "clouds"],
-    sourceNoteIds: wonderSource("mount-everest", "topic-terrain", "topic-ice"),
-    buildingDescentPreferred: false
+    suggestedLayers: ["terrain"],
+    sourceNoteIds: wonderSource("mount-everest", "topic-terrain", "topic-ice")
   },
   {
     id: "grand-canyon",
@@ -41,8 +40,7 @@ export const wonderLocations: EarthLocation[] = [
     ],
     topics: ["terrain", "geology", "water"],
     suggestedLayers: ["terrain"],
-    sourceNoteIds: wonderSource("grand-canyon", "topic-terrain", "topic-water"),
-    buildingDescentPreferred: false
+    sourceNoteIds: wonderSource("grand-canyon", "topic-terrain", "topic-water")
   },
   {
     id: "amazon-rainforest",
@@ -59,14 +57,13 @@ export const wonderLocations: EarthLocation[] = [
       "Deforestation changes habitat, carbon storage, and local climate patterns."
     ],
     topics: ["ecosystems", "water", "human-impact", "biodiversity"],
-    suggestedLayers: ["clouds", "weatherRadar"],
+    suggestedLayers: ["weatherRadar", "atmosphere"],
     sourceNoteIds: wonderSource(
       "amazon-rainforest",
       "topic-ecosystems",
       "topic-water",
       "topic-human-impact"
-    ),
-    buildingDescentPreferred: false
+    )
   },
   {
     id: "great-barrier-reef",
@@ -83,14 +80,13 @@ export const wonderLocations: EarthLocation[] = [
       "Reef health connects water temperature, water clarity, and coastal runoff."
     ],
     topics: ["water", "ecosystems", "climate", "biodiversity"],
-    suggestedLayers: ["clouds", "weatherRadar"],
+    suggestedLayers: ["weatherRadar", "atmosphere"],
     sourceNoteIds: wonderSource(
       "great-barrier-reef",
       "topic-water",
       "topic-ecosystems",
       "topic-climate"
-    ),
-    buildingDescentPreferred: false
+    )
   },
   {
     id: "sahara-desert",
@@ -107,9 +103,8 @@ export const wonderLocations: EarthLocation[] = [
       "The desert includes dunes, rocky plateaus, dry valleys, and mountain massifs."
     ],
     topics: ["climate", "atmosphere", "terrain"],
-    suggestedLayers: ["terrain", "clouds"],
-    sourceNoteIds: wonderSource("sahara-desert", "topic-climate", "topic-atmosphere"),
-    buildingDescentPreferred: false
+    suggestedLayers: ["terrain", "atmosphere"],
+    sourceNoteIds: wonderSource("sahara-desert", "topic-climate", "topic-atmosphere")
   },
   {
     id: "antarctica",
@@ -126,9 +121,8 @@ export const wonderLocations: EarthLocation[] = [
       "Katabatic winds and high elevation make the continent extremely cold and dry."
     ],
     topics: ["ice", "climate", "water"],
-    suggestedLayers: ["terrain", "aurora"],
-    sourceNoteIds: wonderSource("antarctica", "topic-ice", "topic-climate"),
-    buildingDescentPreferred: false
+    suggestedLayers: ["terrain", "atmosphere"],
+    sourceNoteIds: wonderSource("antarctica", "topic-ice", "topic-climate")
   },
   {
     id: "himalayas",
@@ -145,9 +139,8 @@ export const wonderLocations: EarthLocation[] = [
       "Elevation creates strong climate gradients over short horizontal distances."
     ],
     topics: ["terrain", "geology", "ice", "water"],
-    suggestedLayers: ["terrain", "clouds"],
-    sourceNoteIds: wonderSource("himalayas", "topic-terrain", "topic-ice"),
-    buildingDescentPreferred: false
+    suggestedLayers: ["terrain", "weatherRadar"],
+    sourceNoteIds: wonderSource("himalayas", "topic-terrain", "topic-ice")
   },
   {
     id: "aurora-region",
@@ -161,12 +154,11 @@ export const wonderLocations: EarthLocation[] = [
     facts: [
       "Auroral displays are most common in high-latitude oval-shaped regions.",
       "Oxygen and nitrogen emissions create common green, red, and purple colors.",
-      "MyEarth's aurora layer is illustrative and not a live space-weather feed."
+      "Auroras are space-weather events, not cloud or rain systems."
     ],
     topics: ["atmosphere", "climate"],
-    suggestedLayers: ["aurora", "atmosphere"],
-    sourceNoteIds: wonderSource("aurora-region", "topic-atmosphere"),
-    buildingDescentPreferred: false
+    suggestedLayers: ["atmosphere"],
+    sourceNoteIds: wonderSource("aurora-region", "topic-atmosphere")
   }
 ];
 
@@ -185,16 +177,15 @@ export const cityLocations: EarthLocation[] = [
   category: "City shortcut",
   coordinates: { latitude: latitude as number, longitude: longitude as number },
   cameraPresetId: id as string,
-  summary: `${name} demonstrates dense human settlement, night-light patterns, and optional 3D buildings as a secondary city descent.`,
+  summary: `${name} demonstrates dense human settlement, regional labels, and night-light patterns from an unobstructed satellite view.`,
   facts: [
     "Urban form concentrates infrastructure, energy use, and transportation networks.",
     "Night lights reveal broad patterns of settlement, not exact population counts.",
-    "3D buildings are loaded opportunistically and may vary by data coverage."
+    "Labels help orient city shortcuts without covering the surface with extruded blocks."
   ],
   topics: ["urbanization", "human-impact"],
-  suggestedLayers: ["buildings"],
-  sourceNoteIds: [`location-${id}`, "topic-human-impact", "topic-night-lights"],
-  buildingDescentPreferred: true
+  suggestedLayers: ["labels"],
+  sourceNoteIds: [`location-${id}`, "topic-human-impact", "topic-night-lights"]
 }));
 
 export const earthLocations: EarthLocation[] = [

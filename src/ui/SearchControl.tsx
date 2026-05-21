@@ -17,6 +17,7 @@ export function SearchControl({
   const [results, setResults] = useState<SearchResult[]>([]);
   const [status, setStatus] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedLabel, setSelectedLabel] = useState("");
   const inputId = useId();
   const listboxId = useId();
   const enabled = service.isEnabled() && !disabled;
@@ -25,7 +26,12 @@ export function SearchControl({
   useEffect(() => {
     if (!trimmedQuery || !enabled) {
       setResults([]);
-      setStatus(enabled ? "" : "Search needs a Cesium ion token.");
+      setStatus(enabled ? "" : "Search needs VITE_CESIUM_ION_TOKEN.");
+      return;
+    }
+
+    if (trimmedQuery === selectedLabel) {
+      setResults([]);
       return;
     }
 
@@ -54,7 +60,7 @@ export function SearchControl({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [enabled, service, trimmedQuery]);
+  }, [enabled, selectedLabel, service, trimmedQuery]);
 
   const activeResult = useMemo(
     () => results[Math.min(activeIndex, Math.max(0, results.length - 1))],
@@ -63,6 +69,7 @@ export function SearchControl({
 
   const selectResult = (result: SearchResult) => {
     onSelectResult(result);
+    setSelectedLabel(result.label);
     setQuery(result.label);
     setResults([]);
     setStatus(`Selected ${result.label}.`);
@@ -84,7 +91,10 @@ export function SearchControl({
           activeResult ? `${listboxId}-${activeResult.id}` : undefined
         }
         placeholder={enabled ? "Search a place" : "Set Cesium token for search"}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => {
+          setSelectedLabel("");
+          setQuery(event.target.value);
+        }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown") {
             event.preventDefault();

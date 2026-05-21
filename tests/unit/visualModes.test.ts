@@ -23,6 +23,5 @@ describe("visual modes", () => {
   it("sets night lights and clean globe behavior", () => {
     expect(getVisualMode("nightLights").imageryStrategy).toBe("blackMarble");
     expect(getVisualMode("cleanGlobe").defaultLayers.weatherRadar).toBe(false);
-    expect(getVisualMode("cleanGlobe").defaultLayers.aurora).toBe(false);
   });
 });
