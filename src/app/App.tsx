@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from "jotai";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "../accessibility/reducedMotion";
 import { CesiumScene } from "../cesium/CesiumScene";
 import { readAppConfig } from "../config/env";
@@ -12,6 +12,9 @@ import {
   addDistancePoint,
   emptyDistanceMeasurement
 } from "../measurement/distanceMeasurement";
+import { getNewsCountry } from "../news/newsCountries";
+import { createNewsClient } from "../news/newsClient";
+import { getPublicNewsUnavailableMessage } from "../news/newsTypes";
 import { createSoundscape } from "../sound/soundscape";
 import { createPreferencesStore } from "../persistence/preferences";
 import { createTelemetryClient } from "../telemetry/telemetry";
@@ -22,6 +25,7 @@ import type {
   EarthLocation,
   FocusedLocation,
   GlobeFocusPoint,
+  LayerAvailability,
   LayerId,
   MapMeasurePoint,
   SearchResult,
@@ -33,6 +37,7 @@ import {
   layerAvailabilityAtom,
   layerVisibilityAtom,
   loadingPhaseAtom,
+  newsStateAtom,
   qualityModeAtom,
   selectedLocationIdAtom,
   soundStateAtom,
@@ -41,7 +46,8 @@ import {
 import {
   selectLocationActionAtom,
   setLayerAvailabilityActionAtom,
-  setLayerVisibilityActionAtom
+  setLayerVisibilityActionAtom,
+  selectNewsCountryActionAtom
 } from "./appActions";
 import { AppErrorBoundary } from "./AppErrorBoundary";
 import { CommandOverlay } from "../ui/CommandOverlay";
@@ -68,13 +74,16 @@ function MyEarthApp() {
   const [qualityMode, setQualityMode] = useAtom(qualityModeAtom);
   const [layers, setLayers] = useAtom(layerVisibilityAtom);
   const [layerAvailability] = useAtom(layerAvailabilityAtom);
+  const [newsState, setNewsState] = useAtom(newsStateAtom);
   const [soundState, setSoundState] = useAtom(soundStateAtom);
   const [accessibility, setAccessibility] = useAtom(accessibilityAtom);
   const setLayerVisibility = useSetAtom(setLayerVisibilityActionAtom);
   const setLayerAvailability = useSetAtom(setLayerAvailabilityActionAtom);
   const selectLocation = useSetAtom(selectLocationActionAtom);
+  const selectNewsCountry = useSetAtom(selectNewsCountryActionAtom);
   const [fatalError, setFatalError] = useState<AppError>();
   const [cameraCommand, setCameraCommand] = useState<CameraCommand>();
+  const [newsPanelRequest, setNewsPanelRequest] = useState(0);
   const [focusPoint, setFocusPoint] = useState<GlobeFocusPoint>();
   const [distanceMeasurement, setDistanceMeasurement] =
     useState<DistanceMeasurement>(emptyDistanceMeasurement);
@@ -82,7 +91,12 @@ function MyEarthApp() {
     status: "idle"
   });
   const didLoadPreferencesRef = useRef(false);
+  const newsLoadControllerRef = useRef<AbortController>();
   const soundscapeRef = useRef<Soundscape>();
+
+  if (!soundscapeRef.current) {
+    soundscapeRef.current = createSoundscape(setSoundState);
+  }
 
   const searchService = useMemo(
     () =>
@@ -93,6 +107,106 @@ function MyEarthApp() {
     [config.cesiumIonToken]
   );
   const reverseGeocoder = useMemo(() => createReverseGeocoder(), []);
+  const newsClient = useMemo(() => createNewsClient(), []);
+
+  const disableNewsLayer = useCallback(
+    (reason: string) => {
+      setLayerAvailability({
+        layerId: "newsHeatmap",
+        availability: { status: "disabled", reason }
+      });
+      setLayerVisibility({ layerId: "newsHeatmap", visible: false });
+      setLayers((current) =>
+        current.newsHeatmap ? { ...current, newsHeatmap: false } : current
+      );
+    },
+    [setLayerAvailability, setLayerVisibility, setLayers]
+  );
+
+  const loadNewsSnapshot = useCallback(() => {
+    if (newsState.status === "loading" || newsState.status === "ready") {
+      return;
+    }
+
+    newsLoadControllerRef.current?.abort();
+    const controller = new AbortController();
+    newsLoadControllerRef.current = controller;
+    setNewsState({ status: "loading" });
+
+    void newsClient
+      .loadSnapshot(controller.signal)
+      .then((response) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        if (response.status === "ready") {
+          setNewsState({
+            status: "ready",
+            snapshot: response.snapshot,
+            stale: response.stale,
+            ...(response.message ? { message: response.message } : {})
+          });
+          const hasHeadlines = Object.values(response.snapshot.countries).some(
+            (country) => country.headlineCount > 0
+          );
+          setLayerAvailability({
+            layerId: "newsHeatmap",
+            availability: hasHeadlines
+              ? { status: "available" }
+              : {
+                  status: "disabled",
+                  reason: "No current headlines are available."
+                }
+          });
+          if (!hasHeadlines) {
+            setLayerVisibility({ layerId: "newsHeatmap", visible: false });
+            setLayers((current) =>
+              current.newsHeatmap ? { ...current, newsHeatmap: false } : current
+            );
+          }
+          return;
+        }
+
+        const message = getPublicNewsUnavailableMessage(
+          response.reason,
+          response.message
+        );
+        setNewsState({
+          status: "unavailable",
+          reason: response.reason,
+          message
+        });
+        disableNewsLayer(message);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          const message = getPublicNewsUnavailableMessage("provider-failed");
+          setNewsState({
+            status: "unavailable",
+            reason: "provider-failed",
+            message
+          });
+          disableNewsLayer(message);
+        }
+      });
+  }, [
+    disableNewsLayer,
+    newsClient,
+    newsState.status,
+    setLayerAvailability,
+    setLayerVisibility,
+    setLayers,
+    setNewsState
+  ]);
+
+  useEffect(() => {
+    if (loadingPhase === "ready" && newsState.status === "idle") {
+      loadNewsSnapshot();
+    }
+  }, [loadingPhase, loadNewsSnapshot, newsState.status]);
+
+  useEffect(() => () => newsLoadControllerRef.current?.abort(), []);
 
   useEffect(() => {
     if (!focusPoint) {
@@ -192,17 +306,28 @@ function MyEarthApp() {
     });
   }, [accessibility.reducedUi, preferences, qualityMode, soundState.status, visualMode]);
 
-  useEffect(() => {
-    soundscapeRef.current = createSoundscape(setSoundState);
-    return () => soundscapeRef.current?.dispose();
-  }, [setSoundState]);
+  useEffect(
+    () => () => {
+      soundscapeRef.current?.dispose();
+      soundscapeRef.current = undefined;
+    },
+    []
+  );
 
   useEffect(() => {
     if (loadingPhase !== "ready" || soundState.status !== "notPrompted") {
       return;
     }
 
-    const prompt = () => {
+    const prompt = (event: PointerEvent | KeyboardEvent) => {
+      if (
+        event.type === "pointerdown" &&
+        event.target instanceof Element &&
+        event.target.closest("[data-sound-control]")
+      ) {
+        return;
+      }
+
       soundscapeRef.current?.prompt();
       window.removeEventListener("pointerdown", prompt);
       window.removeEventListener("keydown", prompt);
@@ -253,6 +378,27 @@ function MyEarthApp() {
     setLayers((current) => ({ ...current, [id]: visible }));
   };
 
+  const handleNewsCountrySelect = (countryCode: string) => {
+    const selectedCountry = selectNewsCountry({ countryCode });
+    const country = getNewsCountry(countryCode);
+    if (!selectedCountry || !country) {
+      return;
+    }
+
+    setCameraCommand({
+      type: "flyToCoordinates",
+      latitude: country.centroid.latitude,
+      longitude: country.centroid.longitude,
+      heightMeters: country.cameraHeightMeters
+    });
+    setFocusPoint({
+      latitude: country.centroid.latitude,
+      longitude: country.centroid.longitude,
+      cameraHeightMeters: country.cameraHeightMeters
+    });
+    setNewsPanelRequest((current) => current + 1);
+  };
+
   const handleMeasureStart = () => {
     setDistanceMeasurement((current) => ({
       active: true,
@@ -281,6 +427,21 @@ function MyEarthApp() {
     }
   };
 
+  const handleLayerAvailabilityChange = (
+    layerId: LayerId,
+    availability: LayerAvailability
+  ) => {
+    if (
+      layerId === "newsHeatmap" &&
+      availability.status === "disabled" &&
+      availability.reason === "Layer adapter is not registered."
+    ) {
+      return;
+    }
+
+    setLayerAvailability({ layerId, availability });
+  };
+
   const ready = loadingPhase === "ready";
 
   if (fatalError) {
@@ -299,12 +460,15 @@ function MyEarthApp() {
         onViewerReady={() => setLoadingPhase("firstFrame")}
         onFirstFrame={() => setLoadingPhase("ready")}
         onCameraModeChange={setCameraMode}
-        onLayerAvailabilityChange={(layerId, availability) =>
-          setLayerAvailability({ layerId, availability })
-        }
+        onLayerAvailabilityChange={handleLayerAvailabilityChange}
         onFocusPointChange={setFocusPoint}
         distanceMeasurement={distanceMeasurement}
         onMeasurePoint={handleMeasurePoint}
+        newsSnapshot={newsState.status === "ready" ? newsState.snapshot : undefined}
+        selectedNewsCountryCode={
+          newsState.status === "ready" ? newsState.selectedCountryCode : undefined
+        }
+        onNewsCountrySelect={handleNewsCountrySelect}
         onError={handleError}
       />
       <GlobeLoadingScreen phase={loadingPhase} visible={!ready} />
@@ -340,6 +504,12 @@ function MyEarthApp() {
         distanceMeasurement={distanceMeasurement}
         onMeasureStart={handleMeasureStart}
         onMeasureClear={handleMeasureClear}
+        newsState={newsState}
+        newsLayerEnabled={layers.newsHeatmap}
+        newsPanelRequest={newsPanelRequest}
+        onNewsPanelOpen={loadNewsSnapshot}
+        onNewsLayerToggle={(visible) => handleLayerToggle("newsHeatmap", visible)}
+        onSelectNewsCountry={handleNewsCountrySelect}
         focusedLocation={focusedLocation}
         onReset={() => {
           setCameraCommand({ type: "resetView" });

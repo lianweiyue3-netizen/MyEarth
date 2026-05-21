@@ -14,6 +14,12 @@ export type CesiumLikeViewer = {
       add: (item: unknown) => unknown;
       remove: (item: unknown) => boolean;
     };
+    canvas?: {
+      clientWidth?: number;
+      clientHeight?: number;
+      getBoundingClientRect?: () => { left: number; top: number };
+    };
+    pick?: (position: unknown) => unknown;
     requestRender?: () => void;
     imageryLayers?: {
       addImageryProvider?: (provider: unknown, index?: number) => unknown;
@@ -27,6 +33,10 @@ export type CesiumLikeViewer = {
     remove?: (layer: unknown, destroy?: boolean) => boolean;
   };
   terrainProvider?: unknown;
+  entities?: {
+    add: (entity: any) => any;
+    remove: (entity: any) => boolean;
+  };
   __myEarthCesium?: Record<string, any>;
 };
 

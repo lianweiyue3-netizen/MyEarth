@@ -15,6 +15,7 @@ import {
   type LayerAdapterContext
 } from "./layerDefinitions";
 import { createLabelLayerAdapter } from "./labelLayer";
+import { createNewsHeatmapLayerAdapter } from "./newsHeatmapLayer";
 import { setNightLightsVisible } from "./nightLightsLayer";
 import { createTerrainLayerAdapter } from "./terrainLayer";
 import { getVisualMode } from "./visualModes";
@@ -44,6 +45,7 @@ export function createLayerController(options: LayerControllerOptions): LayerCon
     [
       createTerrainLayerAdapter(),
       createLabelLayerAdapter(),
+      createNewsHeatmapLayerAdapter(),
       createWeatherRadarLayerAdapter(createWeatherRadarService())
     ];
 

@@ -16,6 +16,7 @@ const validLayerIds: ReadonlySet<LayerId> = new Set([
   "labels",
   "buildings",
   "weatherRadar",
+  "newsHeatmap",
   "sound"
 ]);
 

@@ -6,6 +6,7 @@ import {
   defaultAccessibilityState,
   defaultLayerAvailability,
   defaultLayerVisibility,
+  defaultNewsState,
   defaultQualityProfile,
   defaultSoundState,
   defaultTourState,
@@ -15,6 +16,7 @@ import {
   layerAvailabilityAtom,
   layerVisibilityAtom,
   loadingPhaseAtom,
+  newsStateAtom,
   qualityModeAtom,
   selectedLocationIdAtom,
   soundStateAtom,
@@ -26,9 +28,12 @@ import type { SerializableAtomValue } from "../../src/app/appAtoms";
 import {
   clearSelectedLocationActionAtom,
   selectLocationActionAtom,
+  selectNewsCountryActionAtom,
+  setNewsReadyActionAtom,
   setLayerAvailabilityActionAtom,
   setLayerVisibilityActionAtom
 } from "../../src/app/appActions";
+import type { NewsSnapshot } from "../../src/news/newsTypes";
 import type {
   EarthLocation,
   LayerAvailability,
@@ -55,6 +60,32 @@ function createLocation(id: string): EarthLocation {
   };
 }
 
+function createNewsSnapshot(): NewsSnapshot {
+  return {
+    provider: "GNews",
+    category: "general",
+    language: "en",
+    lastUpdated: "2026-05-21T00:00:00.000Z",
+    countries: {
+      us: {
+        countryCode: "us",
+        countryName: "United States",
+        headlineCount: 1,
+        articles: [
+          {
+            id: "us-0-test",
+            title: "Test headline",
+            summary: "Short summary",
+            url: "https://example.com/news",
+            sourceName: "Example News",
+            publishedAt: "2026-05-21T00:00:00.000Z"
+          }
+        ]
+      }
+    }
+  };
+}
+
 describe("Jotai app state", () => {
   it("starts with first-load defaults from the design", () => {
     const store = createStore();
@@ -71,7 +102,13 @@ describe("Jotai app state", () => {
     expect(store.get(tourStateAtom)).toEqual(defaultTourState);
     expect(store.get(soundStateAtom)).toEqual(defaultSoundState);
     expect(store.get(weatherStateAtom)).toEqual(defaultWeatherState);
+    expect(store.get(newsStateAtom)).toEqual(defaultNewsState);
     expect(store.get(accessibilityAtom)).toEqual(defaultAccessibilityState);
+    expect(store.get(layerVisibilityAtom).newsHeatmap).toBe(false);
+    expect(store.get(layerAvailabilityAtom).newsHeatmap).toEqual({
+      status: "disabled",
+      reason: "News headlines have not loaded."
+    });
   });
 
   it("updates one layer visibility without mutating unrelated layers", () => {
@@ -93,6 +130,7 @@ describe("Jotai app state", () => {
       "terrain",
       "labels",
       "buildings",
+      "newsHeatmap",
       "sound"
     ];
     for (const layerId of unchangedLayerIds) {
@@ -173,6 +211,7 @@ describe("Jotai app state", () => {
       store.get(tourStateAtom),
       store.get(soundStateAtom),
       store.get(weatherStateAtom),
+      store.get(newsStateAtom),
       store.get(accessibilityAtom)
     ];
 
@@ -189,5 +228,27 @@ describe("Jotai app state", () => {
     expectTypeOf<typeof defaultLayerVisibility>().toExtend<SerializableAtomValue>();
     expectTypeOf<typeof defaultQualityProfile>().toExtend<SerializableAtomValue>();
     expectTypeOf<{ destroy: () => void }>().not.toExtend<SerializableAtomValue>();
+  });
+
+  it("selects known news countries and rejects unknown countries", () => {
+    const store = createStore();
+
+    store.set(setNewsReadyActionAtom, {
+      snapshot: createNewsSnapshot(),
+      stale: false
+    });
+
+    expect(store.set(selectNewsCountryActionAtom, { countryCode: "US" })).toEqual(
+      expect.objectContaining({ countryCode: "us", countryName: "United States" })
+    );
+    expect(store.get(newsStateAtom)).toMatchObject({
+      status: "ready",
+      selectedCountryCode: "us"
+    });
+
+    expect(
+      store.set(selectNewsCountryActionAtom, { countryCode: "unknown" })
+    ).toBeUndefined();
+    expect(store.get(layerVisibilityAtom).weatherRadar).toBe(false);
   });
 });

@@ -4,10 +4,12 @@ import styles from "./AttributionBar.module.css";
 export function AttributionBar({
   layers,
   visualMode,
+  newsActive = false,
   locationLookupActive = false
 }: {
   layers: Record<LayerId, boolean>;
   visualMode: VisualModeId;
+  newsActive?: boolean;
   locationLookupActive?: boolean;
 }) {
   return (
@@ -19,6 +21,7 @@ export function AttributionBar({
         </a>
       ) : null}
       {visualMode === "nightLights" ? <span>NASA Black Marble</span> : null}
+      {newsActive ? <span>GNews</span> : null}
       {locationLookupActive ? (
         <a
           href="https://www.openstreetmap.org/copyright"

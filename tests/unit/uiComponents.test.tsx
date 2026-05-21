@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { LayerTogglePanel } from "../../src/ui/LayerTogglePanel";
 import { LearningPanel } from "../../src/ui/LearningPanel";
 import { LocationList } from "../../src/ui/LocationList";
+import { NewsPanel } from "../../src/ui/NewsPanel";
 import { SearchControl } from "../../src/ui/SearchControl";
 import { AttributionBar } from "../../src/ui/AttributionBar";
 import { CommandOverlay } from "../../src/ui/CommandOverlay";
@@ -13,6 +14,40 @@ import { RadarStatusPanel } from "../../src/ui/RadarStatusPanel";
 import { defaultLayerAvailability, defaultLayerVisibility } from "../../src/app/appAtoms";
 import type { SearchService } from "../../src/search/searchService";
 import { DistanceMeasurePanel } from "../../src/ui/DistanceMeasurePanel";
+import type { NewsState } from "../../src/news/newsTypes";
+
+const readyNewsState: NewsState = {
+  status: "ready",
+  snapshot: {
+    provider: "GNews",
+    category: "general",
+    language: "en",
+    lastUpdated: "2026-05-21T00:00:00.000Z",
+    countries: {
+      us: {
+        countryCode: "us",
+        countryName: "United States",
+        headlineCount: 1,
+        articles: [
+          {
+            id: "us-0-test",
+            title: "Market update",
+            summary: "Provider supplied summary.",
+            url: "https://example.com/story",
+            sourceName: "Example News",
+            publishedAt: "2026-05-21T01:30:00.000Z"
+          }
+        ]
+      },
+      jp: {
+        countryCode: "jp",
+        countryName: "Japan",
+        headlineCount: 0,
+        articles: []
+      }
+    }
+  }
+};
 
 describe("UI components", () => {
   it("supports keyboard search selection with a mocked service", async () => {
@@ -101,6 +136,44 @@ describe("UI components", () => {
     expect(onToggle).not.toHaveBeenCalledWith("sound", expect.any(Boolean));
   });
 
+  it("renders the News layer toggle disabled until headlines are available", async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+    const onSoundToggle = vi.fn();
+
+    const { rerender } = render(
+      <LayerTogglePanel
+        layers={defaultLayerVisibility}
+        availability={defaultLayerAvailability}
+        onToggle={onToggle}
+        onSoundToggle={onSoundToggle}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "News" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+    expect(screen.getByRole("button", { name: "News" })).toBeDisabled();
+    expect(screen.getByText(/News headlines have not loaded/)).toBeInTheDocument();
+
+    rerender(
+      <LayerTogglePanel
+        layers={defaultLayerVisibility}
+        availability={{
+          ...defaultLayerAvailability,
+          newsHeatmap: { status: "available" }
+        }}
+        onToggle={onToggle}
+        onSoundToggle={onSoundToggle}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "News" }));
+    expect(onToggle).toHaveBeenCalledWith("newsHeatmap", true);
+    expect(onSoundToggle).not.toHaveBeenCalled();
+  });
+
   it("renders wonders before city shortcuts", () => {
     render(
       <LocationList
@@ -160,6 +233,105 @@ describe("UI components", () => {
     expect(screen.queryByText(/OpenStreetMap/)).not.toBeInTheDocument();
     expect(screen.getByText("RainViewer")).toBeInTheDocument();
     expect(screen.getByText("NASA Black Marble")).toBeInTheDocument();
+  });
+
+  it("shows GNews attribution only for active ready news", () => {
+    const { rerender } = render(
+      <AttributionBar
+        layers={{ ...defaultLayerVisibility, newsHeatmap: true }}
+        visualMode="satellite"
+        newsActive
+      />
+    );
+
+    expect(screen.getByText("GNews")).toBeInTheDocument();
+
+    rerender(
+      <AttributionBar
+        layers={{ ...defaultLayerVisibility, newsHeatmap: false }}
+        visualMode="satellite"
+      />
+    );
+
+    expect(screen.queryByText("GNews")).not.toBeInTheDocument();
+  });
+
+  it("renders news loading, unavailable, and selected country headlines", async () => {
+    const user = userEvent.setup();
+    const onLayerToggle = vi.fn();
+    const onSelectCountry = vi.fn();
+
+    const { rerender, container } = render(
+      <NewsPanel
+        state={{ status: "loading" }}
+        layerEnabled={false}
+        onLayerToggle={onLayerToggle}
+        onSelectCountry={onSelectCountry}
+      />
+    );
+
+    expect(screen.getByText("Loading country headlines.")).toBeInTheDocument();
+
+    rerender(
+      <NewsPanel
+        state={{
+          status: "unavailable",
+          reason: "missing-api-key",
+          message: "News needs GNEWS_API_KEY on the server."
+        }}
+        layerEnabled={false}
+        onLayerToggle={onLayerToggle}
+        onSelectCountry={onSelectCountry}
+      />
+    );
+    expect(screen.getByText("News needs GNEWS_API_KEY on the server.")).toBeInTheDocument();
+
+    rerender(
+      <NewsPanel
+        state={readyNewsState}
+        layerEnabled={false}
+        onLayerToggle={onLayerToggle}
+        onSelectCountry={onSelectCountry}
+      />
+    );
+    expect(screen.getByText(/Last updated/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /United States/ }));
+    expect(onSelectCountry).toHaveBeenCalledWith("us");
+    await user.click(screen.getByRole("button", { name: "Show Map" }));
+    expect(onLayerToggle).toHaveBeenCalledWith(true);
+
+    rerender(
+      <NewsPanel
+        state={{ ...readyNewsState, selectedCountryCode: "us" }}
+        layerEnabled
+        onLayerToggle={onLayerToggle}
+        onSelectCountry={onSelectCountry}
+      />
+    );
+    expect(screen.getByRole("heading", { name: "United States" })).toBeInTheDocument();
+    expect(screen.getByText("Market update")).toBeInTheDocument();
+    expect(screen.getByText("Provider supplied summary.")).toBeInTheDocument();
+    expect(screen.getByText(/Example News/)).toBeInTheDocument();
+    const link = screen.getByRole("link", { name: /Read article: Market update/ });
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+    expect(container.querySelector("img")).not.toBeInTheDocument();
+  });
+
+  it("renders empty selected country news state", () => {
+    render(
+      <NewsPanel
+        state={{ ...readyNewsState, selectedCountryCode: "jp" }}
+        layerEnabled={false}
+        onLayerToggle={vi.fn()}
+        onSelectCountry={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Japan" })).toBeInTheDocument();
+    expect(
+      screen.getByText("No current headlines are available for this country.")
+    ).toBeInTheDocument();
   });
 
   it("shows active radar status and intensity legend", () => {
@@ -284,6 +456,7 @@ describe("UI components", () => {
     expect(screen.queryByRole("heading", { name: "Mount Everest" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Places/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Search/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^News/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Layers/ })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Mount Everest" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Search Earth")).not.toBeInTheDocument();
@@ -292,6 +465,8 @@ describe("UI components", () => {
     expect(screen.getByRole("button", { name: "Mount Everest" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Search/ }));
     expect(screen.getByLabelText("Search Earth")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /^News/ }));
+    expect(screen.getByTestId("news-panel")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
     expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Radar" })).toBeInTheDocument();

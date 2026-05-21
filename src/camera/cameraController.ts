@@ -265,7 +265,7 @@ export function createCameraController(options: CameraControllerOptions): Camera
       stopZoomAlignment();
       setMode("manual");
     },
-    notifyManualZoom(_deltaY) {
+    notifyManualZoom() {
       stopOrbit();
       setMode("manual");
 

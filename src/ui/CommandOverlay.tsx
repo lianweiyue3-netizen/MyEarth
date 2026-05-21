@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { moveFocusToPanel } from "../accessibility/focusManagement";
 import type {
   DistanceMeasurement,
   EarthLocation,
@@ -9,12 +10,14 @@ import type {
   SoundState,
   VisualModeId
 } from "../shared/domain";
+import type { NewsState } from "../news/newsTypes";
 import type { SearchService } from "../search/searchService";
 import { AttributionBar } from "./AttributionBar";
 import { DistanceMeasurePanel } from "./DistanceMeasurePanel";
 import { FocusLocationReadout } from "./FocusLocationReadout";
 import { LayerTogglePanel } from "./LayerTogglePanel";
 import { LocationList } from "./LocationList";
+import { NewsPanel } from "./NewsPanel";
 import { RadarStatusPanel } from "./RadarStatusPanel";
 import { SearchControl } from "./SearchControl";
 import { SoundConsentControl } from "./SoundConsentControl";
@@ -38,6 +41,12 @@ export function CommandOverlay({
   distanceMeasurement,
   onMeasureStart,
   onMeasureClear,
+  newsState = { status: "idle" },
+  newsLayerEnabled = false,
+  newsPanelRequest = 0,
+  onNewsPanelOpen,
+  onNewsLayerToggle = () => undefined,
+  onSelectNewsCountry = () => undefined,
   focusedLocation = { status: "idle" },
   onReset
 }: {
@@ -58,6 +67,12 @@ export function CommandOverlay({
   distanceMeasurement: DistanceMeasurement;
   onMeasureStart: () => void;
   onMeasureClear: () => void;
+  newsState?: NewsState;
+  newsLayerEnabled?: boolean;
+  newsPanelRequest?: number;
+  onNewsPanelOpen?: () => void;
+  onNewsLayerToggle?: (visible: boolean) => void;
+  onSelectNewsCountry?: (countryCode: string) => void;
   focusedLocation?: FocusedLocation;
   onReset: () => void;
 }) {
@@ -66,6 +81,28 @@ export function CommandOverlay({
   const [searchOpen, setSearchOpen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(false);
   const [distanceOpen, setDistanceOpen] = useState(false);
+  const [newsOpen, setNewsOpen] = useState(false);
+  const handledNewsPanelRequestRef = useRef(newsPanelRequest);
+
+  useEffect(() => {
+    if (
+      newsPanelRequest === 0 ||
+      newsPanelRequest === handledNewsPanelRequestRef.current
+    ) {
+      return;
+    }
+
+    handledNewsPanelRequestRef.current = newsPanelRequest;
+    setNewsOpen(true);
+    window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
+  }, [newsPanelRequest]);
+
+  const newsUnavailable = newsState.status === "unavailable";
+  const newsMeta = newsUnavailable
+    ? "Open details"
+    : newsOpen
+      ? "Close headlines"
+      : "Headlines map";
 
   return (
     <div
@@ -125,6 +162,42 @@ export function CommandOverlay({
                 service={searchService}
                 onSelectResult={onSearchSelect}
                 disabled={disabled}
+              />
+            </div>
+          ) : null}
+          <button
+            type="button"
+            className={`${styles.placesButton} ${newsOpen ? styles.open : ""}`}
+            aria-expanded={newsOpen}
+            aria-controls="news-panel"
+            disabled={disabled}
+            onClick={() => {
+              setNewsOpen((open) => {
+                const nextOpen = !open;
+                if (nextOpen) {
+                  onNewsPanelOpen?.();
+                }
+                return nextOpen;
+              });
+            }}
+          >
+            <span className={styles.placesTitle}>
+              {newsOpen
+                ? "Hide News"
+                : newsUnavailable
+                  ? "News unavailable"
+                  : "News"}
+            </span>
+            <span className={styles.placesMeta}>{newsMeta}</span>
+          </button>
+          {newsOpen ? (
+            <div className={styles.panel} id="news-panel-shell">
+              <NewsPanel
+                state={newsState}
+                layerEnabled={newsLayerEnabled}
+                disabled={disabled}
+                onLayerToggle={onNewsLayerToggle}
+                onSelectCountry={onSelectNewsCountry}
               />
             </div>
           ) : null}
@@ -200,6 +273,7 @@ export function CommandOverlay({
       <AttributionBar
         layers={layers}
         visualMode={visualMode}
+        newsActive={newsLayerEnabled && newsState.status === "ready"}
         locationLookupActive={focusedLocation.status === "ready"}
       />
     </div>

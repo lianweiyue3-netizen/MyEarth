@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { createCameraController } from "../camera/cameraController";
 import { createLayerController } from "../layers/layerController";
+import {
+  clearNewsHeatmapLayer,
+  pickNewsCountry,
+  syncNewsHeatmapLayer
+} from "../layers/newsHeatmapLayer";
 import { defaultQualityProfile } from "../performance/qualityController";
+import type { NewsSnapshot } from "../news/newsTypes";
 import type {
   AppConfig,
   AppError,
@@ -38,6 +44,9 @@ export type CesiumSceneProps = {
   onFocusPointChange?: (point: GlobeFocusPoint | undefined) => void;
   distanceMeasurement?: DistanceMeasurement;
   onMeasurePoint?: (point: MapMeasurePoint) => void;
+  newsSnapshot?: NewsSnapshot;
+  selectedNewsCountryCode?: string;
+  onNewsCountrySelect?: (countryCode: string) => void;
   onError: (error: AppError) => void;
 };
 
@@ -56,6 +65,9 @@ export function CesiumScene(props: CesiumSceneProps) {
     props.onMeasurePoint
   );
   const measurementEntitiesRef = useRef<any[]>([]);
+  const onNewsCountrySelectRef = useRef<CesiumSceneProps["onNewsCountrySelect"]>(
+    props.onNewsCountrySelect
+  );
   const [missingTokenMessage, setMissingTokenMessage] = useState<string>();
 
   useEffect(() => {
@@ -70,6 +82,22 @@ export function CesiumScene(props: CesiumSceneProps) {
   useEffect(() => {
     onMeasurePointRef.current = props.onMeasurePoint;
   }, [props.onMeasurePoint]);
+
+  useEffect(() => {
+    onNewsCountrySelectRef.current = props.onNewsCountrySelect;
+  }, [props.onNewsCountrySelect]);
+
+  useEffect(() => {
+    if (!viewerRef.current) {
+      return;
+    }
+
+    syncNewsHeatmapLayer(viewerRef.current, {
+      visible: props.layers.newsHeatmap,
+      snapshot: props.newsSnapshot,
+      selectedCountryCode: props.selectedNewsCountryCode
+    });
+  }, [props.layers.newsHeatmap, props.newsSnapshot, props.selectedNewsCountryCode]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -153,6 +181,9 @@ export function CesiumScene(props: CesiumSceneProps) {
       for (const [id, visible] of Object.entries(props.layers) as Array<
         [LayerId, boolean]
       >) {
+        if (id === "newsHeatmap") {
+          continue;
+        }
         void layersRef.current.setLayerVisibility(id, visible);
       }
       void cameraRef.current.execute({ type: "startIntroOrbit" });
@@ -183,10 +214,25 @@ export function CesiumScene(props: CesiumSceneProps) {
         onMeasurePointRef.current?.(point);
       }
     };
+    const handleNewsClick = (event: MouseEvent) => {
+      if (distanceMeasurementRef.current?.active) {
+        return;
+      }
+
+      if (!viewerRef.current) {
+        return;
+      }
+
+      const pick = pickNewsCountry(viewerRef.current, event);
+      if (pick) {
+        onNewsCountrySelectRef.current?.(pick.countryCode);
+      }
+    };
     container.addEventListener("pointerdown", handleManual);
     container.addEventListener("wheel", handleWheel, { passive: true });
     container.addEventListener("touchstart", handleManual, { passive: true });
     container.addEventListener("click", handleMeasureClick);
+    container.addEventListener("click", handleNewsClick);
 
     const queueFirstFrame = () => {
       if (firstFrameRef.current) {
@@ -214,6 +260,7 @@ export function CesiumScene(props: CesiumSceneProps) {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("touchstart", handleManual);
       container.removeEventListener("click", handleMeasureClick);
+      container.removeEventListener("click", handleNewsClick);
       removeCameraMoveEndListener?.();
       if (focusPointTimer !== undefined) {
         window.clearTimeout(focusPointTimer);
@@ -227,6 +274,7 @@ export function CesiumScene(props: CesiumSceneProps) {
         viewerRef.current,
         measurementEntitiesRef.current
       );
+      clearNewsHeatmapLayer(viewerRef.current);
       if (viewerRef.current) {
         destroyMyEarthViewer(viewerRef.current);
       }
@@ -243,6 +291,9 @@ export function CesiumScene(props: CesiumSceneProps) {
     for (const [id, visible] of Object.entries(props.layers) as Array<
       [LayerId, boolean]
     >) {
+      if (id === "newsHeatmap") {
+        continue;
+      }
       void layersRef.current?.setLayerVisibility(id, visible);
     }
   }, [props.layers]);

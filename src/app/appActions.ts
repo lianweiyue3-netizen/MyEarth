@@ -1,8 +1,14 @@
 import { atom } from "jotai";
 import type { EarthLocation, LayerAvailability, LayerId } from "../shared/domain";
+import type {
+  NewsCountrySummary,
+  NewsSnapshot,
+  NewsUnavailableReason
+} from "../news/newsTypes";
 import {
   layerAvailabilityAtom,
   layerVisibilityAtom,
+  newsStateAtom,
   selectedLocationIdAtom
 } from "./appAtoms";
 
@@ -33,6 +39,16 @@ export type SelectLocationResult =
       reason: "unknown-location";
       locationId: string;
     };
+
+export type SelectNewsCountryInput = {
+  countryCode: string;
+};
+
+export type SetNewsReadyInput = {
+  snapshot: NewsSnapshot;
+  stale?: boolean;
+  message?: string;
+};
 
 function isLocationIdSet(
   validLocationIds: ReadonlySet<string> | readonly EarthLocation[]
@@ -117,4 +133,81 @@ export const selectLocationActionAtom = atom(
 
 export const clearSelectedLocationActionAtom = atom(null, (_get, set) => {
   set(selectedLocationIdAtom, undefined);
+});
+
+export const setNewsLoadingActionAtom = atom(null, (_get, set) => {
+  set(newsStateAtom, { status: "loading" });
+});
+
+export const setNewsReadyActionAtom = atom(
+  null,
+  (get, set, input: SetNewsReadyInput) => {
+    const current = get(newsStateAtom);
+    const selectedCountryCode =
+      current.status === "ready" &&
+      current.selectedCountryCode &&
+      input.snapshot.countries[current.selectedCountryCode]
+        ? current.selectedCountryCode
+        : undefined;
+
+    set(newsStateAtom, {
+      status: "ready",
+      snapshot: input.snapshot,
+      ...(selectedCountryCode ? { selectedCountryCode } : {}),
+      ...(input.stale === undefined ? {} : { stale: input.stale }),
+      ...(input.message ? { message: input.message } : {})
+    });
+  }
+);
+
+export const setNewsUnavailableActionAtom = atom(
+  null,
+  (
+    _get,
+    set,
+    input: { reason: NewsUnavailableReason; message: string }
+  ) => {
+    set(newsStateAtom, {
+      status: "unavailable",
+      reason: input.reason,
+      message: input.message
+    });
+  }
+);
+
+export const selectNewsCountryActionAtom = atom(
+  null,
+  (get, set, input: SelectNewsCountryInput): NewsCountrySummary | undefined => {
+    const current = get(newsStateAtom);
+    if (current.status !== "ready") {
+      return undefined;
+    }
+
+    const countryCode = input.countryCode.trim().toLowerCase();
+    const country = current.snapshot.countries[countryCode];
+    if (!country) {
+      return undefined;
+    }
+
+    set(newsStateAtom, {
+      ...current,
+      selectedCountryCode: countryCode
+    });
+    return country;
+  }
+);
+
+export const clearSelectedNewsCountryActionAtom = atom(null, (get, set) => {
+  const current = get(newsStateAtom);
+
+  if (current.status !== "ready" || !current.selectedCountryCode) {
+    return;
+  }
+
+  set(newsStateAtom, {
+    status: "ready",
+    snapshot: current.snapshot,
+    ...(current.stale === undefined ? {} : { stale: current.stale }),
+    ...(current.message ? { message: current.message } : {})
+  });
 });

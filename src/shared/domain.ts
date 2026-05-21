@@ -20,6 +20,7 @@ export type LayerId =
   | "labels"
   | "buildings"
   | "weatherRadar"
+  | "newsHeatmap"
   | "sound";
 
 export type QualityMode = "auto" | "high" | "balanced" | "low";
@@ -46,6 +47,7 @@ export type AppError = {
     | "terrain-failed"
     | "layer-failed"
     | "weather-unavailable"
+    | "news-unavailable"
     | "search-failed"
     | "sound-unavailable";
   severity: "info" | "warning" | "fatal";

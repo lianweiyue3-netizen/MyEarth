@@ -47,6 +47,7 @@ const baseLayers = {
   labels: true,
   buildings: false,
   weatherRadar: false,
+  newsHeatmap: false,
   sound: false
 };
 

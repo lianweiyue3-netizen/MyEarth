@@ -13,9 +13,30 @@ export function SoundConsentControl({
   onVolume: (volume: number) => void;
 }) {
   const enabled = state.status === "enabled";
+  const handleToggle = () => {
+    if (enabled) {
+      onDisable();
+    } else {
+      onEnable();
+    }
+  };
+
   return (
-    <section className={styles.sound} aria-label="Sound controls">
-      <button type="button" onClick={enabled ? onDisable : onEnable}>
+    <section className={styles.sound} aria-label="Sound controls" data-sound-control>
+      <button
+        type="button"
+        onPointerDown={(event) => event.stopPropagation()}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          handleToggle();
+        }}
+        onClick={(event) => {
+          if (event.detail === 0) {
+            handleToggle();
+          }
+        }}
+      >
         {enabled ? "Sound Off" : "Sound On"}
       </button>
       <input

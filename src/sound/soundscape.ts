@@ -58,13 +58,14 @@ export function createSoundscape(
         return unavailable;
       }
 
+      const enabled = {
+        status: "enabled",
+        volume: track.volume
+      } satisfies SoundState;
+      publish(enabled);
+
       try {
         await track.play();
-        const enabled = {
-          status: "enabled",
-          volume: track.volume
-        } satisfies SoundState;
-        publish(enabled);
         return enabled;
       } catch {
         const unavailable = {

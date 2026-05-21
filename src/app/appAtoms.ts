@@ -11,6 +11,7 @@ import type {
   VisualModeId,
   WeatherState
 } from "../shared/domain";
+import type { NewsState } from "../news/newsTypes";
 
 export type SerializableAtomPrimitive =
   | string
@@ -35,6 +36,7 @@ export const layerIds = [
   "labels",
   "buildings",
   "weatherRadar",
+  "newsHeatmap",
   "sound"
 ] as const satisfies readonly LayerId[];
 
@@ -55,6 +57,7 @@ export const defaultLayerVisibility: Record<LayerId, boolean> = {
   labels: false,
   buildings: false,
   weatherRadar: false,
+  newsHeatmap: false,
   sound: false
 };
 
@@ -67,6 +70,10 @@ export const defaultLayerAvailability: Record<LayerId, LayerAvailability> = {
     reason: "3D buildings are hidden to keep the view unobstructed."
   },
   weatherRadar: { status: "available" },
+  newsHeatmap: {
+    status: "disabled",
+    reason: "News headlines have not loaded."
+  },
   sound: { status: "available" }
 };
 
@@ -78,6 +85,8 @@ export const defaultTourState: TourState = {
 export const defaultSoundState: SoundState = { status: "notPrompted" };
 
 export const defaultWeatherState: WeatherState = { status: "idle" };
+
+export const defaultNewsState: NewsState = { status: "idle" };
 
 export const defaultAccessibilityState: AccessibilityState = {
   reducedMotion: false,
@@ -153,6 +162,9 @@ export const soundStateAtom =
 
 export const weatherStateAtom =
   createSerializableAtom<WeatherState>(defaultWeatherState);
+
+export const newsStateAtom =
+  createSerializableAtom<NewsState>(defaultNewsState);
 
 export const accessibilityAtom =
   createSerializableAtom<AccessibilityState>(defaultAccessibilityState);

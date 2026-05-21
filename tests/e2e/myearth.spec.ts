@@ -75,3 +75,84 @@ test("controls and attribution are visible in viewport", async ({ page }) => {
   await expect(page.getByRole("button", { name: /^Layers/ })).toBeVisible();
   await expect(page.getByText(/Quality:/)).toHaveCount(0);
 });
+
+test("news panel shows a non-fatal unavailable state without a key", async ({ page }) => {
+  await page.route("**/api/news", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "unavailable",
+        reason: "missing-api-key",
+        message: "News needs GNEWS_API_KEY on the server."
+      })
+    });
+  });
+  await page.goto("/");
+
+  await expect(page.getByTestId("command-overlay")).toBeVisible();
+  await page.getByRole("button", { name: /^News/ }).click();
+  await expect(page.getByTestId("news-panel")).toBeVisible();
+  await expect(page.getByText("News needs GNEWS_API_KEY on the server.")).toBeVisible({
+    timeout: 15_000
+  });
+  await page.getByRole("button", { name: /^Layers/ }).click();
+  await expect(
+    page.getByRole("region", { name: "Layer toggles" }).getByRole("button", {
+      name: "News",
+      exact: true
+    })
+  ).toBeDisabled();
+});
+
+test("news panel displays cached headlines and source attribution", async ({ page }) => {
+  await page.route("**/api/news", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ready",
+        stale: false,
+        snapshot: {
+          provider: "GNews",
+          category: "general",
+          language: "en",
+          lastUpdated: "2026-05-21T00:00:00.000Z",
+          countries: {
+            us: {
+              countryCode: "us",
+              countryName: "United States",
+              headlineCount: 1,
+              articles: [
+                {
+                  id: "us-0-test",
+                  title: "Test headline",
+                  summary: "Short summary",
+                  url: "https://example.com/story",
+                  sourceName: "Example News",
+                  publishedAt: "2026-05-21T01:30:00.000Z"
+                }
+              ]
+            }
+          }
+        }
+      })
+    });
+  });
+  await page.goto("/");
+
+  await expect(page.getByTestId("command-overlay")).toBeVisible();
+  await page.getByRole("button", { name: /^News/ }).click();
+  await expect(page.getByTestId("news-panel")).toBeVisible();
+  await expect(page.getByText(/Last updated/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
+  await page.getByRole("button", { name: "Show Map" }).click();
+  await expect(page.getByRole("contentinfo", { name: "Map attribution" })).toContainText(
+    "GNews"
+  );
+  await page.getByRole("button", { name: /United States/ }).click();
+  await expect(page.getByRole("heading", { name: "United States" })).toBeVisible();
+  await expect(page.getByText("Short summary")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Read article: Test headline/ })).toHaveAttribute(
+    "href",
+    "https://example.com/story"
+  );
+});
