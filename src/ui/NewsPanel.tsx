@@ -1,5 +1,4 @@
 import { useState, type CSSProperties } from "react";
-import type { LayerId } from "../shared/domain";
 import type {
   NewsArticle,
   NewsCountrySummary,
@@ -26,18 +25,14 @@ type ArticleVideoState =
 
 export type NewsPanelProps = {
   state: NewsState;
-  layerEnabled: boolean;
   disabled?: boolean;
-  onLayerToggle: (visible: boolean) => void;
   onSelectCountry: (countryCode: string) => void;
   onClearCountry: () => void;
 };
 
 export function NewsPanel({
   state,
-  layerEnabled,
   disabled = false,
-  onLayerToggle,
   onSelectCountry,
   onClearCountry
 }: NewsPanelProps) {
@@ -64,15 +59,6 @@ export function NewsPanel({
           <h2>World News</h2>
           <p>General headlines by country</p>
         </div>
-        <button
-          type="button"
-          className={styles.toggle}
-          disabled={disabled || state.status !== "ready" || headlineCountries.length === 0}
-          aria-pressed={layerEnabled}
-          onClick={() => onLayerToggle(!layerEnabled)}
-        >
-          {layerEnabled ? "Hide Map" : "Show Map"}
-        </button>
       </div>
       {renderBody(
         state,
@@ -376,5 +362,3 @@ function formatDateTime(value: string) {
     timeStyle: "short"
   }).format(parsed);
 }
-
-export const NEWS_LAYER_ID: LayerId = "newsHeatmap";

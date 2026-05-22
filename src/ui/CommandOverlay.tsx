@@ -42,10 +42,8 @@ export function CommandOverlay({
   onMeasureStart,
   onMeasureClear,
   newsState = { status: "idle" },
-  newsLayerEnabled = false,
   newsPanelRequest = 0,
   onNewsPanelOpen,
-  onNewsLayerToggle = () => undefined,
   onSelectNewsCountry = () => undefined,
   onClearNewsCountry = () => undefined,
   focusedLocation = { status: "idle" },
@@ -69,10 +67,8 @@ export function CommandOverlay({
   onMeasureStart: () => void;
   onMeasureClear: () => void;
   newsState?: NewsState;
-  newsLayerEnabled?: boolean;
   newsPanelRequest?: number;
   onNewsPanelOpen?: () => void;
-  onNewsLayerToggle?: (visible: boolean) => void;
   onSelectNewsCountry?: (countryCode: string) => void;
   onClearNewsCountry?: () => void;
   focusedLocation?: FocusedLocation;
@@ -104,7 +100,7 @@ export function CommandOverlay({
     ? "Open details"
     : newsOpen
       ? "Close headlines"
-      : "Headlines map";
+      : "World headlines";
 
   return (
     <div
@@ -254,9 +250,7 @@ export function CommandOverlay({
           <div className={`${styles.panel} ${styles.newsPanelShell}`} id="news-panel-shell">
             <NewsPanel
               state={newsState}
-              layerEnabled={newsLayerEnabled}
               disabled={disabled}
-              onLayerToggle={onNewsLayerToggle}
               onSelectCountry={onSelectNewsCountry}
               onClearCountry={onClearNewsCountry}
             />
@@ -281,7 +275,7 @@ export function CommandOverlay({
       <AttributionBar
         layers={layers}
         visualMode={visualMode}
-        newsActive={newsLayerEnabled && newsState.status === "ready"}
+        newsActive={newsOpen && newsState.status === "ready"}
         locationLookupActive={focusedLocation.status === "ready"}
       />
     </div>

@@ -35,7 +35,6 @@
   line-height: 1.35;
 }
 
-.toggle,
 .countryList button,
 .videoButton {
   border: 1px solid rgb(214 179 98 / 34%);
@@ -46,13 +45,6 @@
   color: rgb(245 242 233 / 96%);
 }
 
-.toggle {
-  min-height: 2.15rem;
-  padding: 0 0.7rem;
-  white-space: nowrap;
-}
-
-.toggle:disabled,
 .countryList button:disabled,
 .countryHeader button:disabled,
 .videoButton:disabled {
@@ -60,7 +52,6 @@
   cursor: not-allowed;
 }
 
-.toggle:hover:not(:disabled),
 .countryList button:hover:not(:disabled),
 .countryHeader button:hover:not(:disabled),
 .videoButton:hover:not(:disabled) {

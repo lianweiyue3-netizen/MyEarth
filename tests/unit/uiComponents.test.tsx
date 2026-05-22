@@ -163,12 +163,11 @@ describe("UI components", () => {
     expect(onVolume).toHaveBeenCalledWith(0.42);
   });
 
-  it("renders the News layer toggle disabled until headlines are available", async () => {
-    const user = userEvent.setup();
+  it("omits the removed News map layer toggle from Layers", () => {
     const onToggle = vi.fn();
     const onSoundToggle = vi.fn();
 
-    const { rerender } = render(
+    render(
       <LayerTogglePanel
         layers={defaultLayerVisibility}
         availability={defaultLayerAvailability}
@@ -177,27 +176,9 @@ describe("UI components", () => {
       />
     );
 
-    expect(screen.getByRole("button", { name: "News" })).toHaveAttribute(
-      "aria-pressed",
-      "false"
-    );
-    expect(screen.getByRole("button", { name: "News" })).toBeDisabled();
-    expect(screen.getByText(/News headlines have not loaded/)).toBeInTheDocument();
-
-    rerender(
-      <LayerTogglePanel
-        layers={defaultLayerVisibility}
-        availability={{
-          ...defaultLayerAvailability,
-          newsHeatmap: { status: "available" }
-        }}
-        onToggle={onToggle}
-        onSoundToggle={onSoundToggle}
-      />
-    );
-
-    await user.click(screen.getByRole("button", { name: "News" }));
-    expect(onToggle).toHaveBeenCalledWith("newsHeatmap", true);
+    expect(screen.queryByRole("button", { name: "News" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/News headlines have not loaded/)).not.toBeInTheDocument();
+    expect(onToggle).not.toHaveBeenCalledWith("newsHeatmap", expect.any(Boolean));
     expect(onSoundToggle).not.toHaveBeenCalled();
   });
 
@@ -285,7 +266,6 @@ describe("UI components", () => {
 
   it("renders news loading, unavailable, and selected country headlines", async () => {
     const user = userEvent.setup();
-    const onLayerToggle = vi.fn();
     const onSelectCountry = vi.fn();
     const fetcher = vi.fn(async () =>
       new Response(
@@ -305,8 +285,6 @@ describe("UI components", () => {
     const { rerender, container } = render(
       <NewsPanel
         state={{ status: "loading" }}
-        layerEnabled={false}
-        onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
         onClearCountry={vi.fn()}
       />
@@ -321,8 +299,6 @@ describe("UI components", () => {
           reason: "missing-api-key",
           message: "News needs GNEWS_API_KEY on the server."
         }}
-        layerEnabled={false}
-        onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
         onClearCountry={vi.fn()}
       />
@@ -332,13 +308,13 @@ describe("UI components", () => {
     rerender(
       <NewsPanel
         state={readyNewsState}
-        layerEnabled={false}
-        onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
         onClearCountry={vi.fn()}
       />
     );
     expect(screen.getByText(/Last updated/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Show Map" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Hide Map" })).not.toBeInTheDocument();
     const unitedStatesButton = screen.getByRole("button", { name: /United States/ });
     expect(unitedStatesButton.closest("li")).toHaveAttribute(
       "style",
@@ -346,14 +322,10 @@ describe("UI components", () => {
     );
     await user.click(unitedStatesButton);
     expect(onSelectCountry).toHaveBeenCalledWith("us");
-    await user.click(screen.getByRole("button", { name: "Show Map" }));
-    expect(onLayerToggle).toHaveBeenCalledWith(true);
 
     rerender(
       <NewsPanel
         state={{ ...readyNewsState, selectedCountryCode: "us" }}
-        layerEnabled
-        onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
         onClearCountry={vi.fn()}
       />
@@ -392,8 +364,6 @@ describe("UI components", () => {
     rerender(
       <NewsPanel
         state={{ ...readyNewsState, selectedCountryCode: "us" }}
-        layerEnabled
-        onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
         onClearCountry={onClearCountry}
       />
@@ -406,8 +376,6 @@ describe("UI components", () => {
     render(
       <NewsPanel
         state={{ ...readyNewsState, selectedCountryCode: "jp" }}
-        layerEnabled={false}
-        onLayerToggle={vi.fn()}
         onSelectCountry={vi.fn()}
         onClearCountry={vi.fn()}
       />
@@ -560,6 +528,9 @@ describe("UI components", () => {
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
     expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Radar" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Layer toggles" })).not.toHaveTextContent(
+      "News"
+    );
     await user.click(screen.getByRole("button", { name: /^Distance/ }));
     expect(screen.getByRole("button", { name: "Measure" })).toBeInTheDocument();
     expect(screen.queryByTestId("radar-status")).not.toBeInTheDocument();

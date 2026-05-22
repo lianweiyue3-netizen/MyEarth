@@ -68,7 +68,7 @@ Manual news acceptance checks:
 
 - Without `GNEWS_API_KEY` or KV variables, open News and verify the globe remains usable while News reports unavailable.
 - With `GNEWS_API_KEY` and KV variables, call `/api/news/refresh`, then verify `/api/news` returns a cached ready snapshot.
-- In the app, open News, enable Show Map, select a country, and verify the country panel, publish times, external links, and GNews attribution are visible.
+- In the app, open News, select a country, and verify the country panel, publish times, external links, related video control, and GNews attribution are visible.
 
 ## Service Notes
 
@@ -76,7 +76,7 @@ Manual news acceptance checks:
 - OpenStreetMap attribution must remain visible when OSM Buildings are active.
 - OpenStreetMap Nominatim powers the street/state readout when the camera is close to the surface.
 - RainViewer radar metadata is fetched from `https://api.rainviewer.com/public/weather-maps.json`; radar is best-effort, limited to maximum zoom 7, cached for 10 minutes, and attributed to RainViewer when active.
-- GNews top headlines power the optional News heatmap; cached stories can show provider images, link to original providers, and load related YouTube videos through the server-side YouTube lookup route when `YOUTUBE_API_KEY` is configured.
+- GNews top headlines power the News panel; cached stories can show provider images, link to original providers, and load related YouTube videos through the server-side YouTube lookup route when `YOUTUBE_API_KEY` is configured.
 - The aurora layer is a local illustrative overlay and is not a live space-weather feed.
 - Web Audio starts only after explicit user opt-in.
 - Telemetry is no-op by default and, when configured, accepts only anonymous typed performance and error categories. Search query text and precise user location are not collected.

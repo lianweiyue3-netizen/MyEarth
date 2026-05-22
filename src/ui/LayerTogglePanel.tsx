@@ -6,7 +6,6 @@ const visibleLayerIds = [
   "terrain",
   "labels",
   "weatherRadar",
-  "newsHeatmap",
   "sound"
 ] as const satisfies readonly LayerId[];
 
@@ -17,7 +16,6 @@ const layerLabels: Record<VisibleLayerId, string> = {
   terrain: "Terrain",
   labels: "Labels",
   weatherRadar: "Radar",
-  newsHeatmap: "News",
   sound: "Sound"
 };
 

@@ -507,10 +507,8 @@ function MyEarthApp() {
         onMeasureStart={handleMeasureStart}
         onMeasureClear={handleMeasureClear}
         newsState={newsState}
-        newsLayerEnabled={layers.newsHeatmap}
         newsPanelRequest={newsPanelRequest}
         onNewsPanelOpen={loadNewsSnapshot}
-        onNewsLayerToggle={(visible) => handleLayerToggle("newsHeatmap", visible)}
         onSelectNewsCountry={handleNewsCountrySelect}
         onClearNewsCountry={clearSelectedNewsCountry}
         focusedLocation={focusedLocation}

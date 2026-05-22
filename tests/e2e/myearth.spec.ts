@@ -103,7 +103,7 @@ test("news panel shows a non-fatal unavailable state without a key", async ({ pa
       name: "News",
       exact: true
     })
-  ).toBeDisabled();
+  ).toHaveCount(0);
 });
 
 test("news panel displays cached headlines and source attribution", async ({ page }) => {
@@ -167,11 +167,12 @@ test("news panel displays cached headlines and source attribution", async ({ pag
     expect(railBox?.width ?? 0).toBeLessThanOrEqual(viewport?.width ?? 0);
   }
   await expect(page.getByText(/Last updated/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
-  await page.getByRole("button", { name: "Show Map" }).click();
+  await expect(page.getByRole("button", { name: "Show Map" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Hide Map" })).toHaveCount(0);
   await expect(page.getByRole("contentinfo", { name: "Map attribution" })).toContainText(
     "GNews"
   );
+  await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
   await page.getByRole("button", { name: /United States/ }).click();
   await expect(page.getByRole("heading", { name: "United States" })).toBeVisible();
   await expect(page.getByText("Short summary")).toBeVisible();
