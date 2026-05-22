@@ -27,6 +27,7 @@ import {
 import type { SerializableAtomValue } from "../../src/app/appAtoms";
 import {
   clearSelectedLocationActionAtom,
+  clearSelectedNewsCountryActionAtom,
   selectLocationActionAtom,
   selectNewsCountryActionAtom,
   setNewsReadyActionAtom,
@@ -250,5 +251,14 @@ describe("Jotai app state", () => {
       store.set(selectNewsCountryActionAtom, { countryCode: "unknown" })
     ).toBeUndefined();
     expect(store.get(layerVisibilityAtom).weatherRadar).toBe(false);
+
+    store.set(clearSelectedNewsCountryActionAtom);
+    const clearedNewsState = store.get(newsStateAtom);
+    expect(clearedNewsState.status).toBe("ready");
+    expect(
+      clearedNewsState.status === "ready"
+        ? clearedNewsState.selectedCountryCode
+        : "not-ready"
+    ).toBeUndefined();
   });
 });

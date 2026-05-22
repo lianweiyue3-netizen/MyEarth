@@ -22,6 +22,7 @@ Render news loading, unavailable, ready, selected-country, timestamp, source, an
 - [x] Render selected country heading.
 - [x] Render selected country no-headlines message.
 - [x] Render up to 10 article entries.
+- [x] Render a back button from selected country headlines to country list.
 - [x] Render article title.
 - [x] Render article summary.
 - [x] Render article source name.
@@ -43,6 +44,7 @@ Render news loading, unavailable, ready, selected-country, timestamp, source, an
 - [x] Add React Testing Library coverage for empty selected country.
 - [x] Add React Testing Library coverage for safe external links.
 - [x] Add React Testing Library coverage for article media and YouTube links.
+- [x] Add React Testing Library coverage for returning to the country list.
 - [x] Add React Testing Library coverage for layer toggle callback.
 - [x] Add React Testing Library coverage for country selection callback.
 

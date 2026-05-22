@@ -47,6 +47,7 @@ export function CommandOverlay({
   onNewsPanelOpen,
   onNewsLayerToggle = () => undefined,
   onSelectNewsCountry = () => undefined,
+  onClearNewsCountry = () => undefined,
   focusedLocation = { status: "idle" },
   onReset
 }: {
@@ -73,6 +74,7 @@ export function CommandOverlay({
   onNewsPanelOpen?: () => void;
   onNewsLayerToggle?: (visible: boolean) => void;
   onSelectNewsCountry?: (countryCode: string) => void;
+  onClearNewsCountry?: () => void;
   focusedLocation?: FocusedLocation;
   onReset: () => void;
 }) {
@@ -198,6 +200,7 @@ export function CommandOverlay({
                 disabled={disabled}
                 onLayerToggle={onNewsLayerToggle}
                 onSelectCountry={onSelectNewsCountry}
+                onClearCountry={onClearNewsCountry}
               />
             </div>
           ) : null}

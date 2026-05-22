@@ -159,4 +159,6 @@ test("news panel displays cached headlines and source attribution", async ({ pag
   await expect(
     page.getByRole("link", { name: /Find related YouTube video: Test headline/ })
   ).toHaveAttribute("href", /youtube\.com\/results/);
+  await page.getByRole("button", { name: "Back" }).click();
+  await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
 });

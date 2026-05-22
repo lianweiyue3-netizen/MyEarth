@@ -44,6 +44,7 @@ import {
   visualModeAtom
 } from "./appAtoms";
 import {
+  clearSelectedNewsCountryActionAtom,
   selectLocationActionAtom,
   setLayerAvailabilityActionAtom,
   setLayerVisibilityActionAtom,
@@ -81,6 +82,7 @@ function MyEarthApp() {
   const setLayerAvailability = useSetAtom(setLayerAvailabilityActionAtom);
   const selectLocation = useSetAtom(selectLocationActionAtom);
   const selectNewsCountry = useSetAtom(selectNewsCountryActionAtom);
+  const clearSelectedNewsCountry = useSetAtom(clearSelectedNewsCountryActionAtom);
   const [fatalError, setFatalError] = useState<AppError>();
   const [cameraCommand, setCameraCommand] = useState<CameraCommand>();
   const [newsPanelRequest, setNewsPanelRequest] = useState(0);
@@ -510,6 +512,7 @@ function MyEarthApp() {
         onNewsPanelOpen={loadNewsSnapshot}
         onNewsLayerToggle={(visible) => handleLayerToggle("newsHeatmap", visible)}
         onSelectNewsCountry={handleNewsCountrySelect}
+        onClearNewsCountry={clearSelectedNewsCountry}
         focusedLocation={focusedLocation}
         onReset={() => {
           setCameraCommand({ type: "resetView" });

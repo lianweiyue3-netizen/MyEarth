@@ -268,6 +268,7 @@ describe("UI components", () => {
         layerEnabled={false}
         onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
+        onClearCountry={vi.fn()}
       />
     );
 
@@ -283,6 +284,7 @@ describe("UI components", () => {
         layerEnabled={false}
         onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
+        onClearCountry={vi.fn()}
       />
     );
     expect(screen.getByText("News needs GNEWS_API_KEY on the server.")).toBeInTheDocument();
@@ -293,6 +295,7 @@ describe("UI components", () => {
         layerEnabled={false}
         onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
+        onClearCountry={vi.fn()}
       />
     );
     expect(screen.getByText(/Last updated/)).toBeInTheDocument();
@@ -307,6 +310,7 @@ describe("UI components", () => {
         layerEnabled
         onLayerToggle={onLayerToggle}
         onSelectCountry={onSelectCountry}
+        onClearCountry={vi.fn()}
       />
     );
     expect(screen.getByRole("heading", { name: "United States" })).toBeInTheDocument();
@@ -325,6 +329,18 @@ describe("UI components", () => {
     });
     expect(videoLink.getAttribute("href")).toContain("youtube.com");
     expect(videoLink).toHaveAttribute("target", "_blank");
+    const onClearCountry = vi.fn();
+    rerender(
+      <NewsPanel
+        state={{ ...readyNewsState, selectedCountryCode: "us" }}
+        layerEnabled
+        onLayerToggle={onLayerToggle}
+        onSelectCountry={onSelectCountry}
+        onClearCountry={onClearCountry}
+      />
+    );
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(onClearCountry).toHaveBeenCalledOnce();
   });
 
   it("renders empty selected country news state", () => {
@@ -334,6 +350,7 @@ describe("UI components", () => {
         layerEnabled={false}
         onLayerToggle={vi.fn()}
         onSelectCountry={vi.fn()}
+        onClearCountry={vi.fn()}
       />
     );
 

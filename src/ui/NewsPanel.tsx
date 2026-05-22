@@ -12,6 +12,7 @@ export type NewsPanelProps = {
   disabled?: boolean;
   onLayerToggle: (visible: boolean) => void;
   onSelectCountry: (countryCode: string) => void;
+  onClearCountry: () => void;
 };
 
 export function NewsPanel({
@@ -19,7 +20,8 @@ export function NewsPanel({
   layerEnabled,
   disabled = false,
   onLayerToggle,
-  onSelectCountry
+  onSelectCountry,
+  onClearCountry
 }: NewsPanelProps) {
   const selectedCountry =
     state.status === "ready" && state.selectedCountryCode
@@ -54,7 +56,14 @@ export function NewsPanel({
           {layerEnabled ? "Hide Map" : "Show Map"}
         </button>
       </div>
-      {renderBody(state, selectedCountry, headlineCountries, disabled, onSelectCountry)}
+      {renderBody(
+        state,
+        selectedCountry,
+        headlineCountries,
+        disabled,
+        onSelectCountry,
+        onClearCountry
+      )}
     </section>
   );
 }
@@ -64,7 +73,8 @@ function renderBody(
   selectedCountry: NewsCountrySummary | undefined,
   headlineCountries: NewsCountrySummary[],
   disabled: boolean,
-  onSelectCountry: (countryCode: string) => void
+  onSelectCountry: (countryCode: string) => void,
+  onClearCountry: () => void
 ) {
   if (state.status === "idle" || state.status === "loading") {
     return (
@@ -96,7 +106,11 @@ function renderBody(
         </p>
       ) : null}
       {selectedCountry ? (
-        <CountryHeadlines country={selectedCountry} />
+        <CountryHeadlines
+          country={selectedCountry}
+          disabled={disabled}
+          onClearCountry={onClearCountry}
+        />
       ) : (
         <CountryList
           countries={headlineCountries}
@@ -143,10 +157,23 @@ function CountryList({
   );
 }
 
-function CountryHeadlines({ country }: { country: NewsCountrySummary }) {
+function CountryHeadlines({
+  country,
+  disabled,
+  onClearCountry
+}: {
+  country: NewsCountrySummary;
+  disabled: boolean;
+  onClearCountry: () => void;
+}) {
   return (
     <div className={styles.headlines}>
-      <h3>{country.countryName}</h3>
+      <div className={styles.countryHeader}>
+        <h3>{country.countryName}</h3>
+        <button type="button" disabled={disabled} onClick={onClearCountry}>
+          Back
+        </button>
+      </div>
       {country.articles.length === 0 ? (
         <p className={styles.status} role="status">
           No current headlines are available for this country.
