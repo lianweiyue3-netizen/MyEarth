@@ -592,10 +592,15 @@ describe("UI components", () => {
     expect(screen.queryByTestId("news-right-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("news-collapsed-panel")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Places/ }));
-    expect(screen.getByRole("button", { name: "Mount Everest" })).toBeInTheDocument();
+    expect(screen.getByTestId("right-panel-rail")).toContainElement(
+      screen.getByRole("button", { name: "Mount Everest" })
+    );
     await user.click(screen.getByRole("button", { name: /^Search/ }));
-    expect(screen.getByLabelText("Search Earth")).toBeInTheDocument();
+    expect(screen.getByTestId("right-panel-rail")).toContainElement(
+      screen.getByLabelText("Search Earth")
+    );
     await user.click(screen.getByRole("button", { name: /^News/ }));
+    expect(screen.queryByTestId("right-panel-rail")).not.toBeInTheDocument();
     expect(screen.getByTestId("news-right-rail")).toContainElement(
       screen.getByTestId("news-collapsed-panel")
     );
@@ -603,13 +608,17 @@ describe("UI components", () => {
     await user.click(screen.getByTestId("news-collapsed-panel"));
     expect(screen.getByTestId("news-panel")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
-    expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();
+    expect(screen.getByTestId("right-panel-rail")).toContainElement(
+      screen.getByRole("button", { name: "Atmosphere" })
+    );
     expect(screen.getByRole("button", { name: "Radar" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Layer toggles" })).not.toHaveTextContent(
       "News"
     );
     await user.click(screen.getByRole("button", { name: /^Distance/ }));
-    expect(screen.getByRole("button", { name: "Measure" })).toBeInTheDocument();
+    expect(screen.getByTestId("right-panel-rail")).toContainElement(
+      screen.getByRole("button", { name: "Measure" })
+    );
     expect(screen.queryByTestId("radar-status")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Reset View" }));
     expect(onReset).toHaveBeenCalledOnce();

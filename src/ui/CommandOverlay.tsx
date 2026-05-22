@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { moveFocusToPanel } from "../accessibility/focusManagement";
 import type {
   DistanceMeasurement,
@@ -22,6 +22,8 @@ import { RadarStatusPanel } from "./RadarStatusPanel";
 import { SearchControl } from "./SearchControl";
 import { SoundConsentControl } from "./SoundConsentControl";
 import styles from "./CommandOverlay.module.css";
+
+type ActivePanel = "places" | "search" | "news" | "layers" | "distance";
 
 export function CommandOverlay({
   ready,
@@ -75,11 +77,7 @@ export function CommandOverlay({
   onReset: () => void;
 }) {
   const disabled = !ready;
-  const [locationsOpen, setLocationsOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [layersOpen, setLayersOpen] = useState(false);
-  const [distanceOpen, setDistanceOpen] = useState(false);
-  const [newsOpen, setNewsOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<ActivePanel | undefined>();
   const [newsPanelExpanded, setNewsPanelExpanded] = useState(false);
   const handledNewsPanelRequestRef = useRef(newsPanelRequest);
 
@@ -92,11 +90,16 @@ export function CommandOverlay({
     }
 
     handledNewsPanelRequestRef.current = newsPanelRequest;
-    setNewsOpen(true);
+    setActivePanel("news");
     setNewsPanelExpanded(true);
     window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
   }, [newsPanelRequest]);
 
+  const locationsOpen = activePanel === "places";
+  const searchOpen = activePanel === "search";
+  const newsOpen = activePanel === "news";
+  const layersOpen = activePanel === "layers";
+  const distanceOpen = activePanel === "distance";
   const newsUnavailable = newsState.status === "unavailable";
   const newsMeta = newsUnavailable
     ? "Open details"
@@ -122,7 +125,7 @@ export function CommandOverlay({
             aria-expanded={locationsOpen}
             aria-controls="location-shortcuts-panel"
             disabled={disabled}
-            onClick={() => setLocationsOpen((open) => !open)}
+            onClick={() => togglePanel("places", setActivePanel)}
           >
             <span className={styles.placesTitle}>
               {locationsOpen ? "Hide Places" : "Places"}
@@ -131,22 +134,13 @@ export function CommandOverlay({
               {locationsOpen ? "Close shortcuts" : "Wonders and cities"}
             </span>
           </button>
-          {locationsOpen ? (
-            <div className={styles.panel} id="location-shortcuts-panel">
-              <LocationList
-                selectedLocationId={selectedLocationId}
-                onSelectLocation={onSelectLocation}
-                disabled={disabled}
-              />
-            </div>
-          ) : null}
           <button
             type="button"
             className={`${styles.placesButton} ${searchOpen ? styles.open : ""}`}
             aria-expanded={searchOpen}
             aria-controls="search-panel"
             disabled={disabled}
-            onClick={() => setSearchOpen((open) => !open)}
+            onClick={() => togglePanel("search", setActivePanel)}
           >
             <span className={styles.placesTitle}>
               {searchOpen ? "Hide Search" : "Search"}
@@ -155,15 +149,6 @@ export function CommandOverlay({
               {searchOpen ? "Close finder" : "Find a place"}
             </span>
           </button>
-          {searchOpen ? (
-            <div className={styles.panel} id="search-panel">
-              <SearchControl
-                service={searchService}
-                onSelectResult={onSearchSelect}
-                disabled={disabled}
-              />
-            </div>
-          ) : null}
           <button
             type="button"
             className={`${styles.placesButton} ${newsOpen ? styles.open : ""}`}
@@ -171,15 +156,15 @@ export function CommandOverlay({
             aria-controls="news-panel"
             disabled={disabled}
             onClick={() => {
-              setNewsOpen((open) => {
-                const nextOpen = !open;
-                if (nextOpen) {
-                  onNewsPanelOpen?.();
+              setActivePanel((panel) => {
+                if (panel === "news") {
                   setNewsPanelExpanded(false);
-                } else {
-                  setNewsPanelExpanded(false);
+                  return undefined;
                 }
-                return nextOpen;
+
+                onNewsPanelOpen?.();
+                setNewsPanelExpanded(false);
+                return "news";
               });
             }}
           >
@@ -198,7 +183,7 @@ export function CommandOverlay({
             aria-expanded={layersOpen}
             aria-controls="layer-controls-panel"
             disabled={disabled}
-            onClick={() => setLayersOpen((open) => !open)}
+            onClick={() => togglePanel("layers", setActivePanel)}
           >
             <span className={styles.placesTitle}>
               {layersOpen ? "Hide Layers" : "Layers"}
@@ -207,24 +192,13 @@ export function CommandOverlay({
               {layersOpen ? "Close controls" : "Map controls"}
             </span>
           </button>
-          {layersOpen ? (
-            <div className={styles.panel} id="layer-controls-panel">
-              <LayerTogglePanel
-                layers={layers}
-                availability={layerAvailability}
-                onToggle={onLayerToggle}
-                onSoundToggle={onSoundToggle}
-                disabled={disabled}
-              />
-            </div>
-          ) : null}
           <button
             type="button"
             className={`${styles.placesButton} ${distanceOpen ? styles.open : ""}`}
             aria-expanded={distanceOpen}
             aria-controls="distance-tool-panel"
             disabled={disabled}
-            onClick={() => setDistanceOpen((open) => !open)}
+            onClick={() => togglePanel("distance", setActivePanel)}
           >
             <span className={styles.placesTitle}>
               {distanceOpen ? "Hide Distance" : "Distance"}
@@ -233,26 +207,34 @@ export function CommandOverlay({
               {distanceOpen ? "Close tool" : "Map distance"}
             </span>
           </button>
-          {distanceOpen ? (
-            <div className={styles.panel} id="distance-tool-panel">
-              <DistanceMeasurePanel
-                measurement={distanceMeasurement}
-                disabled={disabled}
-                onStart={onMeasureStart}
-                onClear={onMeasureClear}
-              />
-            </div>
-          ) : null}
         </aside>
         <div aria-hidden="true" />
       </div>
-      {newsOpen ? (
+      {activePanel ? (
         <aside
-          className={styles.newsRail}
-          aria-label="World news panel"
-          data-testid="news-right-rail"
+          className={styles.rightRail}
+          aria-label={getRightRailLabel(activePanel)}
+          data-testid={activePanel === "news" ? "news-right-rail" : "right-panel-rail"}
         >
-          {newsPanelExpanded ? (
+          {activePanel === "places" ? (
+            <div className={`${styles.panel} ${styles.toolPanelShell}`} id="location-shortcuts-panel">
+              <LocationList
+                selectedLocationId={selectedLocationId}
+                onSelectLocation={onSelectLocation}
+                disabled={disabled}
+              />
+            </div>
+          ) : null}
+          {activePanel === "search" ? (
+            <div className={`${styles.panel} ${styles.toolPanelShell}`} id="search-panel">
+              <SearchControl
+                service={searchService}
+                onSelectResult={onSearchSelect}
+                disabled={disabled}
+              />
+            </div>
+          ) : null}
+          {activePanel === "news" && newsPanelExpanded ? (
             <div className={`${styles.panel} ${styles.newsPanelShell}`} id="news-panel-shell">
               <NewsPanel
                 state={newsState}
@@ -261,7 +243,8 @@ export function CommandOverlay({
                 onClearCountry={onClearNewsCountry}
               />
             </div>
-          ) : (
+          ) : null}
+          {activePanel === "news" && !newsPanelExpanded ? (
             <button
               type="button"
               id="news-panel-shell"
@@ -279,7 +262,28 @@ export function CommandOverlay({
                 {getCollapsedNewsMeta(newsState)}
               </span>
             </button>
-          )}
+          ) : null}
+          {activePanel === "layers" ? (
+            <div className={`${styles.panel} ${styles.toolPanelShell}`} id="layer-controls-panel">
+              <LayerTogglePanel
+                layers={layers}
+                availability={layerAvailability}
+                onToggle={onLayerToggle}
+                onSoundToggle={onSoundToggle}
+                disabled={disabled}
+              />
+            </div>
+          ) : null}
+          {activePanel === "distance" ? (
+            <div className={`${styles.panel} ${styles.toolPanelShell}`} id="distance-tool-panel">
+              <DistanceMeasurePanel
+                measurement={distanceMeasurement}
+                disabled={disabled}
+                onStart={onMeasureStart}
+                onClear={onMeasureClear}
+              />
+            </div>
+          ) : null}
         </aside>
       ) : null}
       <div className={styles.bottom}>
@@ -300,11 +304,33 @@ export function CommandOverlay({
       <AttributionBar
         layers={layers}
         visualMode={visualMode}
-        newsActive={newsPanelExpanded && newsState.status === "ready"}
+        newsActive={newsOpen && newsPanelExpanded && newsState.status === "ready"}
         locationLookupActive={focusedLocation.status === "ready"}
       />
     </div>
   );
+}
+
+function togglePanel(
+  panel: ActivePanel,
+  setActivePanel: Dispatch<SetStateAction<ActivePanel | undefined>>
+): void {
+  setActivePanel((current) => (current === panel ? undefined : panel));
+}
+
+function getRightRailLabel(panel: ActivePanel): string {
+  switch (panel) {
+    case "places":
+      return "Places panel";
+    case "search":
+      return "Search panel";
+    case "news":
+      return "World news panel";
+    case "layers":
+      return "Layer controls panel";
+    case "distance":
+      return "Distance tool panel";
+  }
 }
 
 function getCollapsedNewsMeta(state: NewsState) {
