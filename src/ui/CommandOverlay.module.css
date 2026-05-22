@@ -10,7 +10,7 @@
     max(0.75rem, env(safe-area-inset-right))
     max(2.6rem, env(safe-area-inset-bottom))
     max(0.75rem, env(safe-area-inset-left));
-  overflow-y: auto;
+  overflow: hidden;
   pointer-events: none;
   opacity: 0;
   transform: translateY(0.4rem);

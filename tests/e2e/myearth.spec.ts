@@ -68,6 +68,7 @@ test("controls and attribution are visible in viewport", async ({ page }) => {
   await expect(page.getByLabel("Search Earth")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Search/ })).toBeVisible();
   await page.getByRole("button", { name: /^Search/ }).click();
+  await expect(page.getByTestId("command-overlay")).toHaveCSS("overflow-y", "hidden");
   await expect(page.getByLabel("Search Earth")).toBeVisible();
   await expect(page.getByRole("button", { name: "Measure", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Distance/ })).toBeVisible();
