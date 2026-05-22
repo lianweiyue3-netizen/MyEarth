@@ -78,6 +78,12 @@ export function SearchControl({
 
   return (
     <div className={styles.search}>
+      <div className={styles.header}>
+        <div>
+          <h2>Search</h2>
+          <p>Find a place</p>
+        </div>
+      </div>
       <label htmlFor={inputId}>Search Earth</label>
       <input
         id={inputId}

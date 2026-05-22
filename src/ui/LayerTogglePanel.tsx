@@ -34,6 +34,12 @@ export function LayerTogglePanel({
 }) {
   return (
     <section className={styles.panel} aria-label="Layer toggles">
+      <div className={styles.header}>
+        <div>
+          <h2>Layers</h2>
+          <p>Map controls</p>
+        </div>
+      </div>
       <div className={styles.grid}>
         {visibleLayerIds.map((id) => {
           const layerAvailability = availability[id];

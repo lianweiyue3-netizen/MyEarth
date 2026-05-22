@@ -121,13 +121,13 @@
 }
 
 .toolPanelShell {
-  border-color: rgb(111 205 255 / 42%);
+  border-color: rgb(214 179 98 / 42%);
   background:
-    linear-gradient(180deg, rgb(11 31 50 / 92%), rgb(5 12 24 / 90%)),
-    rgb(8 18 34 / 88%);
+    linear-gradient(180deg, rgb(17 21 31 / 94%), rgb(6 10 18 / 92%)),
+    rgb(8 12 20 / 92%);
   box-shadow:
-    0 22px 52px rgb(0 0 0 / 42%),
-    inset 0 1px 0 rgb(255 255 255 / 7%);
+    0 22px 52px rgb(0 0 0 / 46%),
+    inset 0 1px 0 rgb(255 255 255 / 6%);
 }
 
 .newsPanelShell {

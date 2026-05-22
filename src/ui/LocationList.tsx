@@ -13,6 +13,12 @@ export function LocationList({
 }) {
   return (
     <section className={styles.list} aria-label="Location shortcuts">
+      <div className={styles.header}>
+        <div>
+          <h2>Places</h2>
+          <p>Wonders and cities</p>
+        </div>
+      </div>
       <LocationGroup
         title="Wonders"
         locations={wonderLocations}

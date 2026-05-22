@@ -22,26 +22,29 @@ export function DistanceMeasurePanel({
   return (
     <section className={styles.panel} aria-label="Distance measurement">
       <div className={styles.header}>
-        <span className={styles.kicker}>Distance</span>
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={`${styles.button} ${measurement.active ? styles.active : ""}`}
-            aria-pressed={measurement.active}
-            disabled={disabled}
-            onClick={onStart}
-          >
-            Measure
-          </button>
-          <button
-            type="button"
-            className={styles.button}
-            disabled={disabled || (!measurement.active && measurement.points.length === 0)}
-            onClick={onClear}
-          >
-            Clear
-          </button>
+        <div>
+          <h2>Distance</h2>
+          <p>Measure map distance</p>
         </div>
+      </div>
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={`${styles.button} ${measurement.active ? styles.active : ""}`}
+          aria-pressed={measurement.active}
+          disabled={disabled}
+          onClick={onStart}
+        >
+          Measure
+        </button>
+        <button
+          type="button"
+          className={styles.button}
+          disabled={disabled || (!measurement.active && measurement.points.length === 0)}
+          onClick={onClear}
+        >
+          Clear
+        </button>
       </div>
       <span className={styles.primary}>{distance ?? status}</span>
       {distance ? <span className={styles.secondary}>{status}</span> : null}
