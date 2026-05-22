@@ -101,11 +101,6 @@ export function CommandOverlay({
   const layersOpen = activePanel === "layers";
   const distanceOpen = activePanel === "distance";
   const newsUnavailable = newsState.status === "unavailable";
-  const newsMeta = newsUnavailable
-    ? "Open details"
-    : newsOpen
-      ? "Close headlines"
-      : "World headlines";
 
   return (
     <div
@@ -130,9 +125,6 @@ export function CommandOverlay({
             <span className={styles.placesTitle}>
               {locationsOpen ? "Hide Places" : "Places"}
             </span>
-            <span className={styles.placesMeta}>
-              {locationsOpen ? "Close shortcuts" : "Wonders and cities"}
-            </span>
           </button>
           <button
             type="button"
@@ -144,9 +136,6 @@ export function CommandOverlay({
           >
             <span className={styles.placesTitle}>
               {searchOpen ? "Hide Search" : "Search"}
-            </span>
-            <span className={styles.placesMeta}>
-              {searchOpen ? "Close finder" : "Find a place"}
             </span>
           </button>
           <button
@@ -175,7 +164,6 @@ export function CommandOverlay({
                   ? "News unavailable"
                   : "News"}
             </span>
-            <span className={styles.placesMeta}>{newsMeta}</span>
           </button>
           <button
             type="button"
@@ -188,9 +176,6 @@ export function CommandOverlay({
             <span className={styles.placesTitle}>
               {layersOpen ? "Hide Layers" : "Layers"}
             </span>
-            <span className={styles.placesMeta}>
-              {layersOpen ? "Close controls" : "Map controls"}
-            </span>
           </button>
           <button
             type="button"
@@ -202,9 +187,6 @@ export function CommandOverlay({
           >
             <span className={styles.placesTitle}>
               {distanceOpen ? "Hide Distance" : "Distance"}
-            </span>
-            <span className={styles.placesMeta}>
-              {distanceOpen ? "Close tool" : "Map distance"}
             </span>
           </button>
         </aside>
