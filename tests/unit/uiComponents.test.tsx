@@ -516,14 +516,17 @@ describe("UI components", () => {
     expect(screen.queryByLabelText("Search Earth")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Atmosphere" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("news-right-rail")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("news-collapsed-panel")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Places/ }));
     expect(screen.getByRole("button", { name: "Mount Everest" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Search/ }));
     expect(screen.getByLabelText("Search Earth")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^News/ }));
     expect(screen.getByTestId("news-right-rail")).toContainElement(
-      screen.getByTestId("news-panel")
+      screen.getByTestId("news-collapsed-panel")
     );
+    expect(screen.queryByTestId("news-panel")).not.toBeInTheDocument();
+    await user.click(screen.getByTestId("news-collapsed-panel"));
     expect(screen.getByTestId("news-panel")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
     expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();

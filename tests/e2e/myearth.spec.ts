@@ -93,6 +93,9 @@ test("news panel shows a non-fatal unavailable state without a key", async ({ pa
   await expect(page.getByTestId("command-overlay")).toBeVisible();
   await page.getByRole("button", { name: /^News/ }).click();
   await expect(page.getByTestId("news-right-rail")).toBeVisible();
+  await expect(page.getByTestId("news-collapsed-panel")).toBeVisible();
+  await expect(page.getByTestId("news-panel")).toHaveCount(0);
+  await page.getByTestId("news-collapsed-panel").click();
   await expect(page.getByTestId("news-panel")).toBeVisible();
   await expect(page.getByText("News needs GNEWS_API_KEY on the server.")).toBeVisible({
     timeout: 15_000
@@ -153,11 +156,20 @@ test("news panel displays cached headlines and source attribution", async ({ pag
       })
     });
   });
+  await page.route("https://www.youtube-nocookie.com/embed/**", async (route) => {
+    await route.fulfill({
+      contentType: "text/html",
+      body: "<!doctype html><title>Stub YouTube embed</title>"
+    });
+  });
   await page.goto("/");
 
   await expect(page.getByTestId("command-overlay")).toBeVisible();
   await page.getByRole("button", { name: /^News/ }).click();
   await expect(page.getByTestId("news-right-rail")).toBeVisible();
+  await expect(page.getByTestId("news-collapsed-panel")).toBeVisible();
+  await expect(page.getByTestId("news-panel")).toHaveCount(0);
+  await page.getByTestId("news-collapsed-panel").click();
   await expect(page.getByTestId("news-panel")).toBeVisible();
   const railBox = await page.getByTestId("news-right-rail").boundingBox();
   const viewport = page.viewportSize();
