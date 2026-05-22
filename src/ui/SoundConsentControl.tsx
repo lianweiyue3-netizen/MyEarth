@@ -13,12 +13,19 @@ export function SoundConsentControl({
   onVolume: (volume: number) => void;
 }) {
   const enabled = state.status === "enabled";
+  const unavailable = state.status === "unavailable";
   const handleToggle = () => {
     if (enabled) {
       onDisable();
     } else {
       onEnable();
     }
+  };
+  const handleVolumeChange = (volume: number) => {
+    if (!enabled) {
+      onEnable();
+    }
+    onVolume(volume);
   };
 
   return (
@@ -45,9 +52,9 @@ export function SoundConsentControl({
         min="0"
         max="1"
         step="0.01"
-        disabled={!enabled}
+        disabled={unavailable}
         value={enabled ? state.volume : 0}
-        onChange={(event) => onVolume(Number(event.target.value))}
+        onInput={(event) => handleVolumeChange(Number(event.currentTarget.value))}
       />
       <span className={styles.status}>
         {state.status === "unavailable"

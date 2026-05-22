@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { LayerTogglePanel } from "../../src/ui/LayerTogglePanel";
@@ -11,6 +11,7 @@ import { CommandOverlay } from "../../src/ui/CommandOverlay";
 import { ErrorFallback } from "../../src/ui/ErrorFallback";
 import { FocusLocationReadout } from "../../src/ui/FocusLocationReadout";
 import { RadarStatusPanel } from "../../src/ui/RadarStatusPanel";
+import { SoundConsentControl } from "../../src/ui/SoundConsentControl";
 import { defaultLayerAvailability, defaultLayerVisibility } from "../../src/app/appAtoms";
 import type { SearchService } from "../../src/search/searchService";
 import { DistanceMeasurePanel } from "../../src/ui/DistanceMeasurePanel";
@@ -135,6 +136,27 @@ describe("UI components", () => {
     await user.click(screen.getByRole("button", { name: "Sound" }));
     expect(onSoundToggle).toHaveBeenCalledOnce();
     expect(onToggle).not.toHaveBeenCalledWith("sound", expect.any(Boolean));
+  });
+
+  it("enables sound when the volume slider changes while sound is off", () => {
+    const onEnable = vi.fn();
+    const onVolume = vi.fn();
+
+    render(
+      <SoundConsentControl
+        state={{ status: "disabled" }}
+        onEnable={onEnable}
+        onDisable={vi.fn()}
+        onVolume={onVolume}
+      />
+    );
+
+    const volume = screen.getByLabelText("Sound volume");
+    expect(volume).not.toBeDisabled();
+    fireEvent.input(volume, { target: { value: "0.42" } });
+
+    expect(onEnable).toHaveBeenCalledOnce();
+    expect(onVolume).toHaveBeenCalledWith(0.42);
   });
 
   it("renders the News layer toggle disabled until headlines are available", async () => {
