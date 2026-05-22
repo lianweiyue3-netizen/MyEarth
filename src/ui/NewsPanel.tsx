@@ -23,6 +23,8 @@ type ArticleVideoState =
   | { status: "ready"; video: YouTubeVideoSummary; visible: boolean }
   | { status: "unavailable"; message: string };
 
+const PINNED_COUNTRY_CODES = ["my", "jp", "us", "tw"] as const;
+
 export type NewsPanelProps = {
   state: NewsState;
   disabled?: boolean;
@@ -43,8 +45,11 @@ export function NewsPanel({
   const headlineCountries =
     state.status === "ready"
       ? Object.values(state.snapshot.countries)
-          .filter((country) => country.headlineCount > 0)
-          .sort((left, right) => right.headlineCount - left.headlineCount)
+          .filter(
+            (country) =>
+              country.headlineCount > 0 || isPinnedCountry(country.countryCode)
+          )
+          .sort(compareNewsCountriesForDisplay)
       : [];
 
   return (
@@ -232,6 +237,36 @@ function getStaggerStyle(index: number): StaggerStyle {
   return {
     "--item-delay": `${Math.min(index, 12) * 60}ms`
   };
+}
+
+function compareNewsCountriesForDisplay(
+  left: NewsCountrySummary,
+  right: NewsCountrySummary
+): number {
+  const leftPinnedIndex = getPinnedCountryIndex(left.countryCode);
+  const rightPinnedIndex = getPinnedCountryIndex(right.countryCode);
+
+  if (leftPinnedIndex !== rightPinnedIndex) {
+    return leftPinnedIndex - rightPinnedIndex;
+  }
+
+  if (left.headlineCount !== right.headlineCount) {
+    return right.headlineCount - left.headlineCount;
+  }
+
+  return left.countryName.localeCompare(right.countryName);
+}
+
+function isPinnedCountry(countryCode: string): boolean {
+  return getPinnedCountryIndex(countryCode) !== Number.POSITIVE_INFINITY;
+}
+
+function getPinnedCountryIndex(countryCode: string): number {
+  const index = PINNED_COUNTRY_CODES.indexOf(
+    countryCode.toLowerCase() as (typeof PINNED_COUNTRY_CODES)[number]
+  );
+
+  return index === -1 ? Number.POSITIVE_INFINITY : index;
 }
 
 function ArticleVideoPlayer({

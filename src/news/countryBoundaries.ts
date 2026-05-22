@@ -28,6 +28,13 @@ const NEWS_COUNTRY_BOUNDARIES: readonly NewsCountryBoundary[] = [
   { countryCode: "il", polygons: [box({ west: 34.2, south: 29.4, east: 35.9, north: 33.4 })] },
   { countryCode: "it", polygons: [box({ west: 6, south: 36, east: 19, north: 47 })] },
   { countryCode: "jp", polygons: [box({ west: 129, south: 31, east: 146, north: 46 })] },
+  {
+    countryCode: "my",
+    polygons: [
+      box({ west: 99.6, south: 1, east: 104.6, north: 7.4 }),
+      box({ west: 109.5, south: 0.8, east: 119.3, north: 7.5 })
+    ]
+  },
   { countryCode: "nl", polygons: [box({ west: 3.2, south: 50.7, east: 7.2, north: 53.7 })] },
   { countryCode: "no", polygons: [box({ west: 4, south: 58, east: 31, north: 71 })] },
   { countryCode: "pk", polygons: [box({ west: 60, south: 23, east: 77, north: 37 })] },

@@ -94,6 +94,12 @@ const NEWS_COUNTRIES = [
     cameraHeightMeters: 2_800_000
   },
   {
+    code: "my",
+    name: "Malaysia",
+    centroid: { latitude: 4.2105, longitude: 101.9758 },
+    cameraHeightMeters: 1_900_000
+  },
+  {
     code: "nl",
     name: "Netherlands",
     centroid: { latitude: 52.1326, longitude: 5.2913 },

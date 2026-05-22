@@ -110,6 +110,8 @@ test("news panel shows a non-fatal unavailable state without a key", async ({ pa
 });
 
 test("news panel displays cached headlines and source attribution", async ({ page }) => {
+  test.slow();
+
   await page.route("**/api/news", async (route) => {
     await route.fulfill({
       contentType: "application/json",

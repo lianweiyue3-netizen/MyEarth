@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LayerTogglePanel } from "../../src/ui/LayerTogglePanel";
@@ -315,10 +315,14 @@ describe("UI components", () => {
     expect(screen.getByText(/Last updated/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Show Map" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Hide Map" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Japan/ }).closest("li")).toHaveAttribute(
+      "style",
+      "--item-delay: 0ms;"
+    );
     const unitedStatesButton = screen.getByRole("button", { name: /United States/ });
     expect(unitedStatesButton.closest("li")).toHaveAttribute(
       "style",
-      "--item-delay: 0ms;"
+      "--item-delay: 60ms;"
     );
     await user.click(unitedStatesButton);
     expect(onSelectCountry).toHaveBeenCalledWith("us");
@@ -370,6 +374,76 @@ describe("UI components", () => {
     );
     await user.click(screen.getByRole("button", { name: "Back" }));
     expect(onClearCountry).toHaveBeenCalledOnce();
+  });
+
+  it("pins Malaysia, Japan, United States, and Taiwan at the top of news countries", () => {
+    render(
+      <NewsPanel
+        state={{
+          status: "ready",
+          snapshot: {
+            provider: "GNews",
+            category: "general",
+            language: "en",
+            lastUpdated: "2026-05-21T00:00:00.000Z",
+            countries: {
+              au: {
+                countryCode: "au",
+                countryName: "Australia",
+                headlineCount: 10,
+                articles: []
+              },
+              ca: {
+                countryCode: "ca",
+                countryName: "Canada",
+                headlineCount: 10,
+                articles: []
+              },
+              my: {
+                countryCode: "my",
+                countryName: "Malaysia",
+                headlineCount: 2,
+                articles: []
+              },
+              jp: {
+                countryCode: "jp",
+                countryName: "Japan",
+                headlineCount: 0,
+                articles: []
+              },
+              us: {
+                countryCode: "us",
+                countryName: "United States",
+                headlineCount: 1,
+                articles: []
+              },
+              tw: {
+                countryCode: "tw",
+                countryName: "Taiwan",
+                headlineCount: 6,
+                articles: []
+              }
+            }
+          }
+        }}
+        onSelectCountry={vi.fn()}
+        onClearCountry={vi.fn()}
+      />
+    );
+
+    const countryButtons = within(
+      screen.getByRole("list", { name: "Countries with headlines" })
+    )
+      .getAllByRole("button")
+      .map((button) => button.textContent);
+
+    expect(countryButtons.slice(0, 4)).toEqual([
+      "Malaysia2",
+      "Japan0",
+      "United States1",
+      "Taiwan6"
+    ]);
+    expect(countryButtons.slice(4)).toEqual(["Australia10", "Canada10"]);
   });
 
   it("renders empty selected country news state", () => {
