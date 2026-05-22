@@ -114,7 +114,6 @@ export function CommandOverlay({
       <div className={styles.top}>
         <header className={styles.brand}>
           <h1>MyEarth</h1>
-          <p>Natural wonders command center</p>
         </header>
       </div>
       <div className={styles.main}>
@@ -192,18 +191,6 @@ export function CommandOverlay({
             </span>
             <span className={styles.placesMeta}>{newsMeta}</span>
           </button>
-          {newsOpen ? (
-            <div className={styles.panel} id="news-panel-shell">
-              <NewsPanel
-                state={newsState}
-                layerEnabled={newsLayerEnabled}
-                disabled={disabled}
-                onLayerToggle={onNewsLayerToggle}
-                onSelectCountry={onSelectNewsCountry}
-                onClearCountry={onClearNewsCountry}
-              />
-            </div>
-          ) : null}
           <button
             type="button"
             className={`${styles.placesButton} ${layersOpen ? styles.open : ""}`}
@@ -258,6 +245,24 @@ export function CommandOverlay({
         </aside>
         <div aria-hidden="true" />
       </div>
+      {newsOpen ? (
+        <aside
+          className={styles.newsRail}
+          aria-label="World news panel"
+          data-testid="news-right-rail"
+        >
+          <div className={`${styles.panel} ${styles.newsPanelShell}`} id="news-panel-shell">
+            <NewsPanel
+              state={newsState}
+              layerEnabled={newsLayerEnabled}
+              disabled={disabled}
+              onLayerToggle={onNewsLayerToggle}
+              onSelectCountry={onSelectNewsCountry}
+              onClearCountry={onClearNewsCountry}
+            />
+          </div>
+        </aside>
+      ) : null}
       <div className={styles.bottom}>
         <button type="button" className={styles.reset} disabled={disabled} onClick={onReset}>
           Reset View

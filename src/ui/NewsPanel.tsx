@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { LayerId } from "../shared/domain";
 import type {
   NewsArticle,
@@ -5,6 +6,10 @@ import type {
   NewsState
 } from "../news/newsTypes";
 import styles from "./NewsPanel.module.css";
+
+type StaggerStyle = CSSProperties & {
+  "--item-delay": string;
+};
 
 export type NewsPanelProps = {
   state: NewsState;
@@ -141,8 +146,12 @@ function CountryList({
 
   return (
     <ul className={styles.countryList} aria-label="Countries with headlines">
-      {countries.map((country) => (
-        <li key={country.countryCode}>
+      {countries.map((country, index) => (
+        <li
+          key={country.countryCode}
+          className={styles.staggerItem}
+          style={getStaggerStyle(index)}
+        >
           <button
             type="button"
             disabled={disabled}
@@ -180,8 +189,12 @@ function CountryHeadlines({
         </p>
       ) : (
         <ol>
-          {country.articles.slice(0, 10).map((article) => (
-            <li key={article.id}>
+          {country.articles.slice(0, 10).map((article, index) => (
+            <li
+              key={article.id}
+              className={styles.staggerItem}
+              style={getStaggerStyle(index)}
+            >
               {article.imageUrl ? (
                 <img
                   src={article.imageUrl}
@@ -218,6 +231,12 @@ function CountryHeadlines({
       )}
     </div>
   );
+}
+
+function getStaggerStyle(index: number): StaggerStyle {
+  return {
+    "--item-delay": `${Math.min(index, 12) * 60}ms`
+  };
 }
 
 function createYouTubeSearchUrl(

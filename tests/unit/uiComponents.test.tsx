@@ -299,7 +299,12 @@ describe("UI components", () => {
       />
     );
     expect(screen.getByText(/Last updated/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /United States/ }));
+    const unitedStatesButton = screen.getByRole("button", { name: /United States/ });
+    expect(unitedStatesButton.closest("li")).toHaveAttribute(
+      "style",
+      "--item-delay: 0ms;"
+    );
+    await user.click(unitedStatesButton);
     expect(onSelectCountry).toHaveBeenCalledWith("us");
     await user.click(screen.getByRole("button", { name: "Show Map" }));
     expect(onLayerToggle).toHaveBeenCalledWith(true);
@@ -322,6 +327,7 @@ describe("UI components", () => {
       "https://example.com/image.jpg"
     );
     const link = screen.getByRole("link", { name: /Read article: Market update/ });
+    expect(link.closest("li")).toHaveAttribute("style", "--item-delay: 0ms;");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noreferrer");
     const videoLink = screen.getByRole("link", {
@@ -471,6 +477,7 @@ describe("UI components", () => {
     );
 
     expect(screen.getByRole("heading", { name: "MyEarth" })).toBeInTheDocument();
+    expect(screen.queryByText("Natural wonders command center")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Satellite" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Night" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Clean" })).not.toBeInTheDocument();
@@ -487,11 +494,15 @@ describe("UI components", () => {
     expect(screen.queryByRole("button", { name: "Mount Everest" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Search Earth")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Atmosphere" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("news-right-rail")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Places/ }));
     expect(screen.getByRole("button", { name: "Mount Everest" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Search/ }));
     expect(screen.getByLabelText("Search Earth")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^News/ }));
+    expect(screen.getByTestId("news-right-rail")).toContainElement(
+      screen.getByTestId("news-panel")
+    );
     expect(screen.getByTestId("news-panel")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
     expect(screen.getByRole("button", { name: "Atmosphere" })).toBeInTheDocument();

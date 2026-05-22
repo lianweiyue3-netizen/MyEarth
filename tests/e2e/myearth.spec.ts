@@ -63,6 +63,7 @@ test("controls and attribution are visible in viewport", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "MyEarth" })).toBeVisible();
+  await expect(page.getByText("Natural wonders command center")).toHaveCount(0);
   await expect(page.getByRole("contentinfo", { name: "Map attribution" })).toBeVisible();
   await expect(page.getByLabel("Search Earth")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Search/ })).toBeVisible();
@@ -91,6 +92,7 @@ test("news panel shows a non-fatal unavailable state without a key", async ({ pa
 
   await expect(page.getByTestId("command-overlay")).toBeVisible();
   await page.getByRole("button", { name: /^News/ }).click();
+  await expect(page.getByTestId("news-right-rail")).toBeVisible();
   await expect(page.getByTestId("news-panel")).toBeVisible();
   await expect(page.getByText("News needs GNEWS_API_KEY on the server.")).toBeVisible({
     timeout: 15_000
@@ -142,7 +144,15 @@ test("news panel displays cached headlines and source attribution", async ({ pag
 
   await expect(page.getByTestId("command-overlay")).toBeVisible();
   await page.getByRole("button", { name: /^News/ }).click();
+  await expect(page.getByTestId("news-right-rail")).toBeVisible();
   await expect(page.getByTestId("news-panel")).toBeVisible();
+  const railBox = await page.getByTestId("news-right-rail").boundingBox();
+  const viewport = page.viewportSize();
+  if ((viewport?.width ?? 0) > 760) {
+    expect(railBox?.x ?? 0).toBeGreaterThan((viewport?.width ?? 0) / 2);
+  } else {
+    expect(railBox?.width ?? 0).toBeLessThanOrEqual(viewport?.width ?? 0);
+  }
   await expect(page.getByText(/Last updated/)).toBeVisible();
   await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
   await page.getByRole("button", { name: "Show Map" }).click();
