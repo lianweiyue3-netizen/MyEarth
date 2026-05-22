@@ -602,11 +602,9 @@ describe("UI components", () => {
     await user.click(screen.getByRole("button", { name: /^News/ }));
     expect(screen.queryByTestId("right-panel-rail")).not.toBeInTheDocument();
     expect(screen.getByTestId("news-right-rail")).toContainElement(
-      screen.getByTestId("news-collapsed-panel")
+      screen.getByTestId("news-panel")
     );
-    expect(screen.queryByTestId("news-panel")).not.toBeInTheDocument();
-    await user.click(screen.getByTestId("news-collapsed-panel"));
-    expect(screen.getByTestId("news-panel")).toBeInTheDocument();
+    expect(screen.queryByTestId("news-collapsed-panel")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Layers/ }));
     expect(screen.getByTestId("right-panel-rail")).toContainElement(
       screen.getByRole("button", { name: "Atmosphere" })

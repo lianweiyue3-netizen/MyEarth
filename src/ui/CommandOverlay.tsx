@@ -78,7 +78,6 @@ export function CommandOverlay({
 }) {
   const disabled = !ready;
   const [activePanel, setActivePanel] = useState<ActivePanel | undefined>();
-  const [newsPanelExpanded, setNewsPanelExpanded] = useState(false);
   const handledNewsPanelRequestRef = useRef(newsPanelRequest);
 
   useEffect(() => {
@@ -91,7 +90,6 @@ export function CommandOverlay({
 
     handledNewsPanelRequestRef.current = newsPanelRequest;
     setActivePanel("news");
-    setNewsPanelExpanded(true);
     window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
   }, [newsPanelRequest]);
 
@@ -147,12 +145,11 @@ export function CommandOverlay({
             onClick={() => {
               setActivePanel((panel) => {
                 if (panel === "news") {
-                  setNewsPanelExpanded(false);
                   return undefined;
                 }
 
                 onNewsPanelOpen?.();
-                setNewsPanelExpanded(false);
+                window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
                 return "news";
               });
             }}
@@ -216,7 +213,7 @@ export function CommandOverlay({
               />
             </div>
           ) : null}
-          {activePanel === "news" && newsPanelExpanded ? (
+          {activePanel === "news" ? (
             <div className={`${styles.panel} ${styles.newsPanelShell}`} id="news-panel-shell">
               <NewsPanel
                 state={newsState}
@@ -225,25 +222,6 @@ export function CommandOverlay({
                 onClearCountry={onClearNewsCountry}
               />
             </div>
-          ) : null}
-          {activePanel === "news" && !newsPanelExpanded ? (
-            <button
-              type="button"
-              id="news-panel-shell"
-              className={`${styles.panel} ${styles.newsPanelShell} ${styles.newsCollapsed}`}
-              aria-expanded="false"
-              aria-controls="news-panel"
-              data-testid="news-collapsed-panel"
-              onClick={() => {
-                setNewsPanelExpanded(true);
-                window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
-              }}
-            >
-              <span className={styles.newsCollapsedTitle}>World News</span>
-              <span className={styles.newsCollapsedMeta}>
-                {getCollapsedNewsMeta(newsState)}
-              </span>
-            </button>
           ) : null}
           {activePanel === "layers" ? (
             <div className={`${styles.panel} ${styles.toolPanelShell}`} id="layer-controls-panel">
@@ -286,7 +264,7 @@ export function CommandOverlay({
       <AttributionBar
         layers={layers}
         visualMode={visualMode}
-        newsActive={newsOpen && newsPanelExpanded && newsState.status === "ready"}
+        newsActive={newsOpen && newsState.status === "ready"}
         locationLookupActive={focusedLocation.status === "ready"}
       />
     </div>
@@ -313,36 +291,4 @@ function getRightRailLabel(panel: ActivePanel): string {
     case "distance":
       return "Distance tool panel";
   }
-}
-
-function getCollapsedNewsMeta(state: NewsState) {
-  if (state.status === "unavailable") {
-    return state.message;
-  }
-
-  if (state.status === "ready") {
-    const selectedCountry = state.selectedCountryCode
-      ? state.snapshot.countries[state.selectedCountryCode]
-      : undefined;
-
-    if (selectedCountry) {
-      return selectedCountry.countryName;
-    }
-
-    return `Last updated ${formatNewsRailDateTime(state.snapshot.lastUpdated)}`;
-  }
-
-  return "Loading headlines";
-}
-
-function formatNewsRailDateTime(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(parsed);
 }
