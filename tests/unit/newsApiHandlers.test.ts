@@ -10,6 +10,11 @@ import {
   type RefreshApiResponseLike
 } from "../../api/news/refresh";
 import {
+  getYouTubeVideoApiResponse,
+  handleYouTubeVideoApiRequest,
+  type VideoApiResponseLike
+} from "../../api/news/video";
+import {
   createNewsCacheRepository,
   type NewsKvJsonClient,
   type NewsKvSetOptions
@@ -242,9 +247,94 @@ describe("news API handlers", () => {
     });
     expect(JSON.stringify(result)).not.toContain(secret);
   });
+
+  it("looks up embeddable YouTube videos without leaking the key", async () => {
+    const secret = "youtube-secret";
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response(
+        JSON.stringify({
+          items: [
+            {
+              id: { videoId: "video123" },
+              snippet: {
+                title: "Related story video",
+                channelTitle: "Example Channel",
+                thumbnails: {
+                  medium: { url: "https://example.com/thumb.jpg" }
+                }
+              }
+            }
+          ]
+        }),
+        { status: 200 }
+      );
+    });
+
+    const result = await getYouTubeVideoApiResponse({
+      env: { YOUTUBE_API_KEY: secret },
+      fetcher: fetcher as unknown as typeof fetch,
+      query: "test headline news"
+    });
+
+    expect(result).toEqual({
+      status: "ready",
+      video: {
+        videoId: "video123",
+        title: "Related story video",
+        channelTitle: "Example Channel",
+        thumbnailUrl: "https://example.com/thumb.jpg"
+      }
+    });
+    const requestUrl = new URL(String(fetcher.mock.calls[0]?.[0]));
+    expect(requestUrl.origin + requestUrl.pathname).toBe(
+      "https://www.googleapis.com/youtube/v3/search"
+    );
+    expect(requestUrl.searchParams.get("q")).toBe("test headline news");
+    expect(requestUrl.searchParams.get("videoEmbeddable")).toBe("true");
+    expect(JSON.stringify(result)).not.toContain(secret);
+  });
+
+  it("handles missing YouTube setup and method checks safely", async () => {
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      void input;
+      void init;
+      return new Response("{}", { status: 200 });
+    });
+
+    await expect(
+      getYouTubeVideoApiResponse({
+        env: {},
+        fetcher: fetcher as unknown as typeof fetch,
+        query: "test headline news"
+      })
+    ).resolves.toEqual({
+      status: "unavailable",
+      reason: "missing-api-key",
+      message: "YouTube video lookup needs YOUTUBE_API_KEY on the server."
+    });
+    expect(fetcher).not.toHaveBeenCalled();
+
+    const response = createResponseRecorder<VideoApiResponseLike>();
+    await handleYouTubeVideoApiRequest(
+      { method: "POST", query: { query: "test headline news" } },
+      response
+    );
+
+    expect(response.statusCode).toBe(405);
+    expect(response.headers.get("Allow")).toBe("GET");
+    expect(response.body).toEqual({
+      status: "unavailable",
+      reason: "api-error",
+      message: "Method not allowed."
+    });
+  });
 });
 
-function createResponseRecorder<T extends ApiResponseLike | RefreshApiResponseLike>() {
+function createResponseRecorder<
+  T extends ApiResponseLike | RefreshApiResponseLike | VideoApiResponseLike
+>() {
   const recorder = {
     statusCode: 200,
     headers: new Map<string, string>(),

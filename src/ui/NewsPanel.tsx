@@ -1,15 +1,28 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { LayerId } from "../shared/domain";
 import type {
   NewsArticle,
   NewsCountrySummary,
   NewsState
 } from "../news/newsTypes";
+import {
+  createYouTubeEmbedUrl,
+  getPublicYouTubeVideoUnavailableMessage,
+  isYouTubeVideoApiResponse,
+  type YouTubeVideoApiResponse,
+  type YouTubeVideoSummary
+} from "../news/youtubeVideo";
 import styles from "./NewsPanel.module.css";
 
 type StaggerStyle = CSSProperties & {
   "--item-delay": string;
 };
+
+type ArticleVideoState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; video: YouTubeVideoSummary; visible: boolean }
+  | { status: "unavailable"; message: string };
 
 export type NewsPanelProps = {
   state: NewsState;
@@ -216,15 +229,11 @@ function CountryHeadlines({
               <span>
                 {article.sourceName} - {formatDateTime(article.publishedAt)}
               </span>
-              <a
-                href={createYouTubeSearchUrl(article, country)}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.videoLink}
-                aria-label={`Find related YouTube video: ${article.title}`}
-              >
-                Related video on YouTube
-              </a>
+              <ArticleVideoPlayer
+                article={article}
+                country={country}
+                disabled={disabled}
+              />
             </li>
           ))}
         </ol>
@@ -239,14 +248,121 @@ function getStaggerStyle(index: number): StaggerStyle {
   };
 }
 
-function createYouTubeSearchUrl(
-  article: NewsArticle,
-  country: NewsCountrySummary
-): string {
-  const query = `${article.title} ${country.countryName} news`;
-  const url = new URL("https://www.youtube.com/results");
-  url.searchParams.set("search_query", query);
-  return url.toString();
+function ArticleVideoPlayer({
+  article,
+  country,
+  disabled
+}: {
+  article: NewsArticle;
+  country: NewsCountrySummary;
+  disabled: boolean;
+}) {
+  const [state, setState] = useState<ArticleVideoState>({ status: "idle" });
+  const expanded = state.status === "ready" && state.visible;
+
+  const handleVideoClick = async () => {
+    if (state.status === "ready") {
+      setState({ ...state, visible: !state.visible });
+      return;
+    }
+
+    if (state.status === "loading") {
+      return;
+    }
+
+    setState({ status: "loading" });
+    const response = await loadRelatedYouTubeVideo(createYouTubeVideoQuery(article, country));
+
+    if (response.status === "ready") {
+      setState({ status: "ready", video: response.video, visible: true });
+    } else {
+      setState({ status: "unavailable", message: response.message });
+    }
+  };
+
+  return (
+    <div className={styles.video}>
+      <button
+        type="button"
+        className={styles.videoButton}
+        disabled={disabled || state.status === "loading"}
+        aria-expanded={expanded}
+        aria-controls={`youtube-player-${article.id}`}
+        onClick={() => {
+          void handleVideoClick();
+        }}
+      >
+        {state.status === "loading"
+          ? "Loading video"
+          : expanded
+            ? "Hide YouTube video"
+            : "Show YouTube video"}
+      </button>
+      {state.status === "loading" ? (
+        <p className={styles.videoStatus} role="status">
+          Loading YouTube video.
+        </p>
+      ) : null}
+      {state.status === "unavailable" ? (
+        <p className={styles.videoStatus} role="status">
+          {state.message}
+        </p>
+      ) : null}
+      {state.status === "ready" && state.visible ? (
+        <div className={styles.videoFrame} id={`youtube-player-${article.id}`}>
+          <iframe
+            title={`YouTube video: ${state.video.title}`}
+            src={createYouTubeEmbedUrl(state.video.videoId)}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+          <p className={styles.videoMeta}>
+            {state.video.title} - {state.video.channelTitle}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function createYouTubeVideoQuery(article: NewsArticle, country: NewsCountrySummary): string {
+  return `${article.title} ${country.countryName} news`;
+}
+
+async function loadRelatedYouTubeVideo(
+  query: string
+): Promise<YouTubeVideoApiResponse> {
+  const endpoint = new URL("/api/news/video", window.location.origin);
+  endpoint.searchParams.set("query", query);
+
+  try {
+    const response = await fetch(endpoint, {
+      headers: { Accept: "application/json" }
+    });
+
+    if (!response.ok) {
+      return unavailableVideo("api-error");
+    }
+
+    const payload: unknown = await response.json();
+    return isYouTubeVideoApiResponse(payload)
+      ? payload
+      : unavailableVideo("api-error");
+  } catch {
+    return unavailableVideo("api-error");
+  }
+}
+
+function unavailableVideo(
+  reason: Parameters<typeof getPublicYouTubeVideoUnavailableMessage>[0]
+): YouTubeVideoApiResponse {
+  return {
+    status: "unavailable",
+    reason,
+    message: getPublicYouTubeVideoUnavailableMessage(reason)
+  };
 }
 
 function formatDateTime(value: string) {

@@ -36,7 +36,8 @@
 }
 
 .toggle,
-.countryList button {
+.countryList button,
+.videoButton {
   border: 1px solid rgb(214 179 98 / 34%);
   border-radius: var(--radius-control);
   background:
@@ -53,14 +54,16 @@
 
 .toggle:disabled,
 .countryList button:disabled,
-.countryHeader button:disabled {
+.countryHeader button:disabled,
+.videoButton:disabled {
   color: rgb(207 214 223 / 42%);
   cursor: not-allowed;
 }
 
 .toggle:hover:not(:disabled),
 .countryList button:hover:not(:disabled),
-.countryHeader button:hover:not(:disabled) {
+.countryHeader button:hover:not(:disabled),
+.videoButton:hover:not(:disabled) {
   border-color: rgb(223 185 101 / 62%);
   background:
     linear-gradient(180deg, rgb(65 51 29 / 82%), rgb(13 18 29 / 88%)),
@@ -158,11 +161,39 @@
   text-decoration: underline;
 }
 
-.headlines .videoLink {
+.video {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.videoButton {
   width: fit-content;
+  min-height: 1.85rem;
+  padding: 0 0.58rem;
   color: rgb(244 210 136 / 94%);
   font-size: 0.76rem;
   font-weight: 600;
+}
+
+.videoFrame {
+  display: grid;
+  gap: 0.34rem;
+}
+
+.videoFrame iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgb(214 179 98 / 28%);
+  border-radius: 0.42rem;
+  background: rgb(0 0 0 / 72%);
+}
+
+.videoStatus,
+.videoMeta {
+  margin: 0;
+  color: rgb(207 214 223 / 78%);
+  font-size: 0.76rem;
+  line-height: 1.35;
 }
 
 .staggerItem {

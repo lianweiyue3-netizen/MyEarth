@@ -140,6 +140,19 @@ test("news panel displays cached headlines and source attribution", async ({ pag
       })
     });
   });
+  await page.route("**/api/news/video**", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ready",
+        video: {
+          videoId: "video123",
+          title: "Test headline video",
+          channelTitle: "Example Channel"
+        }
+      })
+    });
+  });
   await page.goto("/");
 
   await expect(page.getByTestId("command-overlay")).toBeVisible();
@@ -166,9 +179,10 @@ test("news panel displays cached headlines and source attribution", async ({ pag
     "href",
     "https://example.com/story"
   );
+  await page.getByRole("button", { name: "Show YouTube video" }).click();
   await expect(
-    page.getByRole("link", { name: /Find related YouTube video: Test headline/ })
-  ).toHaveAttribute("href", /youtube\.com\/results/);
+    page.getByTitle("YouTube video: Test headline video")
+  ).toHaveAttribute("src", /youtube-nocookie\.com\/embed\/video123/);
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("button", { name: /United States/ })).toBeVisible();
 });

@@ -7,6 +7,11 @@ import {
   type NewsSnapshot,
   type NewsState
 } from "../../src/news/newsTypes";
+import {
+  createYouTubeEmbedUrl,
+  isYouTubeVideoApiResponse,
+  type YouTubeVideoApiResponse
+} from "../../src/news/youtubeVideo";
 
 const snapshot: NewsSnapshot = {
   provider: "GNews",
@@ -93,5 +98,38 @@ describe("news domain types", () => {
     expect("image" in article).toBe(false);
     expect("body" in article).toBe(false);
     expect("content" in article).toBe(false);
+  });
+
+  it("accepts YouTube video lookup responses", () => {
+    const response: YouTubeVideoApiResponse = {
+      status: "ready",
+      video: {
+        videoId: "abc123",
+        title: "Related news clip",
+        channelTitle: "Example Channel",
+        thumbnailUrl: "https://example.com/thumb.jpg"
+      }
+    };
+
+    expect(isYouTubeVideoApiResponse(response)).toBe(true);
+    expect(createYouTubeEmbedUrl(response.video.videoId)).toBe(
+      "https://www.youtube-nocookie.com/embed/abc123?rel=0&modestbranding=1"
+    );
+  });
+
+  it("rejects malformed YouTube video lookup responses", () => {
+    expect(
+      isYouTubeVideoApiResponse({
+        status: "ready",
+        video: { videoId: "", title: "Clip", channelTitle: "Channel" }
+      })
+    ).toBe(false);
+    expect(
+      isYouTubeVideoApiResponse({
+        status: "unavailable",
+        reason: "secret-provider-error",
+        message: "nope"
+      })
+    ).toBe(false);
   });
 });

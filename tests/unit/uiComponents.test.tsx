@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { LayerTogglePanel } from "../../src/ui/LayerTogglePanel";
 import { LearningPanel } from "../../src/ui/LearningPanel";
 import { LocationList } from "../../src/ui/LocationList";
@@ -16,6 +16,10 @@ import { defaultLayerAvailability, defaultLayerVisibility } from "../../src/app/
 import type { SearchService } from "../../src/search/searchService";
 import { DistanceMeasurePanel } from "../../src/ui/DistanceMeasurePanel";
 import type { NewsState } from "../../src/news/newsTypes";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const readyNewsState: NewsState = {
   status: "ready",
@@ -283,6 +287,20 @@ describe("UI components", () => {
     const user = userEvent.setup();
     const onLayerToggle = vi.fn();
     const onSelectCountry = vi.fn();
+    const fetcher = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          status: "ready",
+          video: {
+            videoId: "video123",
+            title: "Market update video",
+            channelTitle: "Example Channel"
+          }
+        }),
+        { status: 200 }
+      )
+    );
+    vi.stubGlobal("fetch", fetcher);
 
     const { rerender, container } = render(
       <NewsPanel
@@ -352,11 +370,24 @@ describe("UI components", () => {
     expect(link.closest("li")).toHaveAttribute("style", "--item-delay: 0ms;");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noreferrer");
-    const videoLink = screen.getByRole("link", {
-      name: /Find related YouTube video: Market update/
+    const videoButton = screen.getByRole("button", {
+      name: "Show YouTube video"
     });
-    expect(videoLink.getAttribute("href")).toContain("youtube.com");
-    expect(videoLink).toHaveAttribute("target", "_blank");
+    await user.click(videoButton);
+    const player = await screen.findByTitle("YouTube video: Market update video");
+    expect(player).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/video123?rel=0&modestbranding=1"
+    );
+    expect(screen.getByText(/Market update video - Example Channel/)).toBeInTheDocument();
+    expect(fetcher).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pathname: "/api/news/video"
+      }),
+      expect.objectContaining({
+        headers: { Accept: "application/json" }
+      })
+    );
     const onClearCountry = vi.fn();
     rerender(
       <NewsPanel
