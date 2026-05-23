@@ -69,9 +69,9 @@ test("controls and attribution are visible in viewport", async ({ page }) => {
     "border-top-color",
     "rgba(214, 179, 98, 0.42)"
   );
+  await expect(page.getByTestId("left-taskbar-rail")).toHaveCSS("left", "0px");
   const taskbarToggle = page.getByRole("button", { name: "Hide task bar" });
   await expect(taskbarToggle).toHaveText("<");
-  await expect(taskbarToggle).toHaveCSS("left", "0px");
   await page.getByRole("button", { name: "Hide task bar" }).click();
   await expect(page.getByRole("button", { name: /^Places/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Show task bar" })).toHaveText(">");

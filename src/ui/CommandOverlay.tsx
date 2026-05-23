@@ -99,7 +99,7 @@ export function CommandOverlay({
   const newsOpen = activePanel === "news";
   const layersOpen = activePanel === "layers";
   const distanceOpen = activePanel === "distance";
-  const newsUnavailable = newsState.status === "unavailable";
+  const leftButtonDisabled = disabled || leftRailCollapsed;
 
   return (
     <div
@@ -111,97 +111,97 @@ export function CommandOverlay({
           <h1>MyEarth</h1>
         </header>
       </div>
-      <button
-        type="button"
-        className={styles.leftRailToggle}
-        aria-label={leftRailCollapsed ? "Show task bar" : "Hide task bar"}
-        aria-expanded={!leftRailCollapsed}
-        aria-controls="left-taskbar"
-        disabled={disabled}
-        onClick={() => setLeftRailCollapsed((current) => !current)}
+      <div
+        className={`${styles.leftRail} ${leftRailCollapsed ? styles.leftRailCollapsed : ""}`}
+        data-testid="left-taskbar-rail"
       >
-        {leftRailCollapsed ? ">" : "<"}
-      </button>
-      <div className={`${styles.main} ${leftRailCollapsed ? styles.mainCollapsed : ""}`}>
-        {!leftRailCollapsed ? (
-          <aside className={styles.left} id="left-taskbar">
-            <button
-              type="button"
-              className={`${styles.placesButton} ${locationsOpen ? styles.open : ""}`}
-              aria-expanded={locationsOpen}
-              aria-controls="location-shortcuts-panel"
-              disabled={disabled}
-              onClick={() => togglePanel("places", setActivePanel)}
-            >
-              <span className={styles.placesTitle}>
-                {locationsOpen ? "Hide Places" : "Places"}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.placesButton} ${searchOpen ? styles.open : ""}`}
-              aria-expanded={searchOpen}
-              aria-controls="search-panel"
-              disabled={disabled}
-              onClick={() => togglePanel("search", setActivePanel)}
-            >
-              <span className={styles.placesTitle}>
-                {searchOpen ? "Hide Search" : "Search"}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.placesButton} ${newsOpen ? styles.open : ""}`}
-              aria-expanded={newsOpen}
-              aria-controls="news-panel"
-              disabled={disabled}
-              onClick={() => {
-                setActivePanel((panel) => {
-                  if (panel === "news") {
-                    return undefined;
-                  }
+        <aside
+          className={styles.left}
+          id="left-taskbar"
+          aria-hidden={leftRailCollapsed}
+        >
+          <button
+            type="button"
+            className={`${styles.placesButton} ${locationsOpen ? styles.open : ""}`}
+            aria-expanded={locationsOpen}
+            aria-controls="location-shortcuts-panel"
+            disabled={leftButtonDisabled}
+            onClick={() => togglePanel("places", setActivePanel)}
+          >
+            <span className={styles.placesTitle}>
+              {locationsOpen ? "Hide Places" : "Places"}
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.placesButton} ${searchOpen ? styles.open : ""}`}
+            aria-expanded={searchOpen}
+            aria-controls="search-panel"
+            disabled={leftButtonDisabled}
+            onClick={() => togglePanel("search", setActivePanel)}
+          >
+            <span className={styles.placesTitle}>
+              {searchOpen ? "Hide Search" : "Search"}
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.placesButton} ${newsOpen ? styles.open : ""}`}
+            aria-expanded={newsOpen}
+            aria-controls="news-panel"
+            disabled={leftButtonDisabled}
+            onClick={() => {
+              setActivePanel((panel) => {
+                if (panel === "news") {
+                  return undefined;
+                }
 
-                  onNewsPanelOpen?.();
-                  window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
-                  return "news";
-                });
-              }}
-            >
-              <span className={styles.placesTitle}>
-                {newsOpen
-                  ? "Hide News"
-                  : newsUnavailable
-                    ? "News unavailable"
-                    : "News"}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.placesButton} ${layersOpen ? styles.open : ""}`}
-              aria-expanded={layersOpen}
-              aria-controls="layer-controls-panel"
-              disabled={disabled}
-              onClick={() => togglePanel("layers", setActivePanel)}
-            >
-              <span className={styles.placesTitle}>
-                {layersOpen ? "Hide Layers" : "Layers"}
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`${styles.placesButton} ${distanceOpen ? styles.open : ""}`}
-              aria-expanded={distanceOpen}
-              aria-controls="distance-tool-panel"
-              disabled={disabled}
-              onClick={() => togglePanel("distance", setActivePanel)}
-            >
-              <span className={styles.placesTitle}>
-                {distanceOpen ? "Hide Distance" : "Distance"}
-              </span>
-            </button>
-          </aside>
-        ) : null}
-        <div aria-hidden="true" />
+                onNewsPanelOpen?.();
+                window.setTimeout(() => moveFocusToPanel("news-panel"), 0);
+                return "news";
+              });
+            }}
+          >
+            <span className={styles.placesTitle}>
+              {newsOpen ? "Hide News" : "News"}
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.placesButton} ${layersOpen ? styles.open : ""}`}
+            aria-expanded={layersOpen}
+            aria-controls="layer-controls-panel"
+            disabled={leftButtonDisabled}
+            onClick={() => togglePanel("layers", setActivePanel)}
+          >
+            <span className={styles.placesTitle}>
+              {layersOpen ? "Hide Layers" : "Layers"}
+            </span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.placesButton} ${distanceOpen ? styles.open : ""}`}
+            aria-expanded={distanceOpen}
+            aria-controls="distance-tool-panel"
+            disabled={leftButtonDisabled}
+            onClick={() => togglePanel("distance", setActivePanel)}
+          >
+            <span className={styles.placesTitle}>
+              {distanceOpen ? "Hide Distance" : "Distance"}
+            </span>
+          </button>
+        </aside>
+        <button
+          type="button"
+          className={styles.leftRailToggle}
+          aria-label={leftRailCollapsed ? "Show task bar" : "Hide task bar"}
+          aria-expanded={!leftRailCollapsed}
+          aria-controls="left-taskbar"
+          disabled={disabled}
+          onClick={() => setLeftRailCollapsed((current) => !current)}
+        >
+          {leftRailCollapsed ? ">" : "<"}
+        </button>
       </div>
       {activePanel ? (
         <aside

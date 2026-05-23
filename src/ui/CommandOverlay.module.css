@@ -29,6 +29,7 @@
 .right,
 .bottom,
 .rightRail,
+.leftRail,
 .leftRailToggle {
   pointer-events: auto;
 }
@@ -92,17 +93,6 @@
   padding: 0.65rem;
 }
 
-.main {
-  display: grid;
-  grid-template-columns: minmax(9.75rem, 24rem) 1fr;
-  gap: 0.75rem;
-  align-items: start;
-}
-
-.mainCollapsed {
-  grid-template-columns: 1fr;
-}
-
 .left,
 .right {
   display: grid;
@@ -111,29 +101,85 @@
 
 .left {
   gap: 0.9rem;
-  justify-items: start;
+  justify-items: stretch;
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
 }
 
-.leftRailToggle {
+.leftRail {
   position: fixed;
   top: 50%;
   left: 0;
   z-index: calc(var(--z-overlay) + 2);
+  width: 11.4rem;
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.72rem 0.78rem 0.72rem 0.75rem;
+  border: 1px solid rgb(214 179 98 / 46%);
+  border-left: 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background:
+    linear-gradient(180deg, rgb(17 21 31 / 84%), rgb(6 10 18 / 82%)),
+    rgb(8 12 20 / 82%);
+  box-shadow:
+    0 22px 54px rgb(0 0 0 / 44%),
+    0 0 28px rgb(111 205 255 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 7%);
+  backdrop-filter: blur(16px);
+  transform: translateY(-50%);
+  transition:
+    transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 260ms ease,
+    border-color 260ms ease;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.leftRail::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgb(250 221 142 / 11%), transparent 26%),
+    linear-gradient(90deg, rgb(111 205 255 / 16%), transparent 24%);
+  content: "";
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.leftRailCollapsed {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transform: translate(calc(-100% + 0.25rem), -50%);
+}
+
+.leftRailCollapsed::before {
+  opacity: 0;
+}
+
+.leftRailToggle {
+  position: absolute;
+  top: 50%;
+  right: -2.18rem;
+  z-index: 1;
   width: 2.35rem;
   height: 3.25rem;
   display: grid;
   align-items: center;
   justify-items: center;
-  border: 1px solid rgb(214 179 98 / 46%);
+  border: 1px solid rgb(214 179 98 / 52%);
   border-left: 0;
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background:
-    linear-gradient(180deg, rgb(38 33 25 / 82%), rgb(9 13 22 / 88%)),
-    rgb(9 13 22 / 88%);
+    linear-gradient(180deg, rgb(38 33 25 / 92%), rgb(9 13 22 / 94%)),
+    rgb(9 13 22 / 94%);
   color: rgb(250 221 142 / 96%);
   box-shadow:
-    0 18px 42px rgb(0 0 0 / 42%),
-    inset 0 1px 0 rgb(255 255 255 / 7%);
+    0 16px 38px rgb(0 0 0 / 42%),
+    inset 0 1px 0 rgb(255 255 255 / 8%);
   font-family:
     "Copperplate Gothic Light",
     "Copperplate Gothic Bold",
@@ -145,6 +191,10 @@
   font-weight: 700;
   line-height: 1;
   transform: translateY(-50%);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -152,7 +202,6 @@
 .leftRailToggle:hover:not(:disabled),
 .leftRailToggle:focus-visible {
   border-color: rgb(244 210 136 / 76%);
-  border-left-color: rgb(169 226 255 / 86%);
   background:
     linear-gradient(180deg, rgb(65 51 29 / 84%), rgb(13 18 29 / 90%)),
     rgb(13 18 29 / 90%);
@@ -199,7 +248,8 @@
 }
 
 .placesButton {
-  min-width: 9.75rem;
+  width: 100%;
+  min-width: 0;
   min-height: 2.65rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1.25rem;
@@ -221,6 +271,7 @@
   color: var(--color-text);
   text-align: left;
   backdrop-filter: blur(14px);
+  pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -344,11 +395,6 @@
     grid-template-columns: 1fr;
   }
 
-  .main {
-    grid-template-columns: 1fr;
-    align-content: start;
-  }
-
   .left,
   .right {
     grid-template-columns: minmax(0, 1fr);
@@ -356,6 +402,10 @@
 }
 
 @media (max-width: 760px) {
+  .leftRail {
+    width: 10.8rem;
+  }
+
   .rightRail {
     top: 4.9rem;
     right: max(0.75rem, env(safe-area-inset-right));
@@ -371,7 +421,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rightRail {
+  .rightRail,
+  .leftRail,
+  .leftRailToggle {
     animation: none;
+    transition: none;
   }
 }
