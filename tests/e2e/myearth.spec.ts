@@ -189,6 +189,9 @@ test("news panel displays cached headlines and source attribution", async ({ pag
   } else {
     expect(railBox?.width ?? 0).toBeLessThanOrEqual(viewport?.width ?? 0);
   }
+  const soundBox = await page.getByLabel("Sound controls").boundingBox();
+  expect(railBox?.y ?? 0).toBeLessThan(soundBox?.y ?? 0);
+  expect((railBox?.y ?? 0) + (railBox?.height ?? 0)).toBeLessThanOrEqual(soundBox?.y ?? 0);
   await expect(page.getByText(/Last updated/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Show Map" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Hide Map" })).toHaveCount(0);

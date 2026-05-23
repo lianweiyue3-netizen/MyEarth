@@ -220,9 +220,10 @@
   position: fixed;
   top: max(5.25rem, env(safe-area-inset-top));
   right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(8.25rem, calc(env(safe-area-inset-bottom) + 8.25rem));
   z-index: calc(var(--z-overlay) + 1);
   width: min(24rem, calc(100vw - 1.5rem));
-  max-height: calc(100vh - 7.5rem);
+  max-height: none;
   overflow: auto;
   animation: rightRailEnter 240ms ease both;
 }
@@ -429,9 +430,10 @@
   .rightRail {
     top: 4.9rem;
     right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(13.5rem, calc(env(safe-area-inset-bottom) + 13.5rem));
     left: max(0.75rem, env(safe-area-inset-left));
     width: auto;
-    max-height: calc(100vh - 9rem);
+    max-height: none;
   }
 
   .bottom {
