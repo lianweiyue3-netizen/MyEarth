@@ -63,10 +63,7 @@
 }
 
 .listbox {
-  position: absolute;
-  top: calc(100% + 0.3rem);
-  left: 0;
-  right: 0;
+  position: relative;
   z-index: 2;
   display: grid;
   max-height: 15rem;
