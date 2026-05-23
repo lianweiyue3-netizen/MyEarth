@@ -1,7 +1,11 @@
 .bar {
-  justify-self: end;
+  position: fixed;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(0.45rem, env(safe-area-inset-bottom));
+  z-index: calc(var(--z-overlay) + 1);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.45rem;
   max-width: calc(100vw - 1.2rem);
   margin-left: auto;
