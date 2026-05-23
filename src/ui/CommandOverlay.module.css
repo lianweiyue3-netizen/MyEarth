@@ -117,7 +117,7 @@
 .leftRailToggle {
   position: fixed;
   top: 50%;
-  left: max(0.75rem, env(safe-area-inset-left));
+  left: 0;
   z-index: calc(var(--z-overlay) + 2);
   width: 2.35rem;
   height: 3.25rem;
@@ -125,8 +125,8 @@
   align-items: center;
   justify-items: center;
   border: 1px solid rgb(214 179 98 / 46%);
-  border-left: 2px solid rgb(111 205 255 / 62%);
-  border-radius: var(--radius-control);
+  border-left: 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background:
     linear-gradient(180deg, rgb(38 33 25 / 82%), rgb(9 13 22 / 88%)),
     rgb(9 13 22 / 88%);
