@@ -65,6 +65,14 @@ test("controls and attribution are visible in viewport", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "MyEarth" })).toBeVisible();
   await expect(page.getByText("Natural wonders command center")).toHaveCount(0);
   await expect(page.getByRole("contentinfo", { name: "Map attribution" })).toBeVisible();
+  await expect(page.getByLabel("Sound controls")).toHaveCSS(
+    "border-top-color",
+    "rgba(214, 179, 98, 0.42)"
+  );
+  await page.getByRole("button", { name: "Hide task bar" }).click();
+  await expect(page.getByRole("button", { name: /^Places/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Show task bar" }).click();
+  await expect(page.getByRole("button", { name: /^Places/ })).toBeVisible();
   await expect(page.getByLabel("Search Earth")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /^Search/ })).toBeVisible();
   await page.getByRole("button", { name: /^Search/ }).click();

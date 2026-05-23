@@ -586,11 +586,16 @@ describe("UI components", () => {
     expect(screen.getByRole("button", { name: /^Search/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^News/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Layers/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hide task bar" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Mount Everest" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Search Earth")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Atmosphere" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("news-right-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("news-collapsed-panel")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Hide task bar" }));
+    expect(screen.queryByRole("button", { name: /^Places/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Show task bar" }));
+    expect(screen.getByRole("button", { name: /^Places/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /^Places/ }));
     expect(screen.getByTestId("right-panel-rail")).toContainElement(
       screen.getByRole("button", { name: "Mount Everest" })

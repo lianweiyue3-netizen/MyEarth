@@ -28,7 +28,8 @@
 .left,
 .right,
 .bottom,
-.rightRail {
+.rightRail,
+.leftRailToggle {
   pointer-events: auto;
 }
 
@@ -98,6 +99,10 @@
   align-items: start;
 }
 
+.mainCollapsed {
+  grid-template-columns: 1fr;
+}
+
 .left,
 .right {
   display: grid;
@@ -107,6 +112,59 @@
 .left {
   gap: 0.9rem;
   justify-items: start;
+}
+
+.leftRailToggle {
+  position: fixed;
+  top: 50%;
+  left: max(0.75rem, env(safe-area-inset-left));
+  z-index: calc(var(--z-overlay) + 2);
+  width: 2.35rem;
+  height: 3.25rem;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  border: 1px solid rgb(214 179 98 / 46%);
+  border-left: 2px solid rgb(111 205 255 / 62%);
+  border-radius: var(--radius-control);
+  background:
+    linear-gradient(180deg, rgb(38 33 25 / 82%), rgb(9 13 22 / 88%)),
+    rgb(9 13 22 / 88%);
+  color: rgb(250 221 142 / 96%);
+  box-shadow:
+    0 18px 42px rgb(0 0 0 / 42%),
+    inset 0 1px 0 rgb(255 255 255 / 7%);
+  font-family:
+    "Copperplate Gothic Light",
+    "Copperplate Gothic Bold",
+    "Palatino Linotype",
+    "Book Antiqua",
+    Georgia,
+    serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-50%);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.leftRailToggle:hover:not(:disabled),
+.leftRailToggle:focus-visible {
+  border-color: rgb(244 210 136 / 76%);
+  border-left-color: rgb(169 226 255 / 86%);
+  background:
+    linear-gradient(180deg, rgb(65 51 29 / 84%), rgb(13 18 29 / 90%)),
+    rgb(13 18 29 / 90%);
+  box-shadow:
+    0 20px 44px rgb(0 0 0 / 48%),
+    0 0 18px rgb(244 210 136 / 16%),
+    inset 0 1px 0 rgb(255 255 255 / 9%);
+}
+
+.leftRailToggle:disabled {
+  color: rgb(207 214 223 / 42%);
+  cursor: not-allowed;
 }
 
 .rightRail {
