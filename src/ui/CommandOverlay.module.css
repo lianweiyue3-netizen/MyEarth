@@ -163,10 +163,10 @@
 .leftRailToggle {
   position: absolute;
   top: 50%;
-  right: -1.7rem;
+  right: -1.26rem;
   z-index: 1;
-  width: 1.85rem;
-  height: 2.45rem;
+  width: 1.42rem;
+  height: 3.15rem;
   display: grid;
   align-items: center;
   justify-items: center;
