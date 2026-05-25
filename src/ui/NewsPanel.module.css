@@ -6,12 +6,24 @@
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 0.75rem;
-  padding-block-end: 0.72rem;
+  margin: -0.65rem -0.65rem 0;
+  padding: 0.65rem 0.65rem 0.72rem;
   border-bottom: 1px solid rgb(214 179 98 / 24%);
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  background:
+    linear-gradient(180deg, rgb(17 21 31 / 98%), rgb(6 10 18 / 94%)),
+    rgb(8 12 20 / 96%);
+  box-shadow:
+    0 12px 24px rgb(0 0 0 / 28%),
+    inset 0 1px 0 rgb(255 255 255 / 6%);
+  backdrop-filter: blur(12px);
 }
 
 .header h2,
