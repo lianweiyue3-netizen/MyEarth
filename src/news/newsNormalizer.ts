@@ -1,4 +1,4 @@
-import type { NewsCountrySummary, NewsSnapshot } from "./newsTypes.js";
+import type { NewsCountrySummary, NewsLanguage, NewsSnapshot } from "./newsTypes.js";
 import {
   createNewsServiceError,
   isCountryCode,
@@ -11,6 +11,7 @@ const MAX_ARTICLES_PER_COUNTRY = 10;
 export function normalizeGNewsCountryResponse(input: {
   countryCode: string;
   countryName: string;
+  language: NewsLanguage;
   payload: unknown;
   nowIso: string;
 }): NewsCountrySummary {
@@ -36,6 +37,7 @@ export function normalizeGNewsCountryResponse(input: {
   return {
     countryCode,
     countryName,
+    language: input.language,
     headlineCount: articles.length,
     articles
   };
@@ -64,7 +66,7 @@ export function createNewsSnapshot(input: {
     schemaVersion: NEWS_SNAPSHOT_SCHEMA_VERSION,
     provider: "GNews",
     category: "general",
-    language: "en",
+    language: "mixed",
     lastUpdated,
     countries
   };

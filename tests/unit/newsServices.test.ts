@@ -45,6 +45,7 @@ function snapshot(): NewsSnapshot {
       normalizeGNewsCountryResponse({
         countryCode: "us",
         countryName: "United States",
+        language: "en",
         payload: gnewsPayload(),
         nowIso
       })
@@ -57,6 +58,7 @@ describe("news domain and normalization", () => {
     const country = normalizeGNewsCountryResponse({
       countryCode: "US",
       countryName: "United States",
+      language: "en",
       payload: gnewsPayload(),
       nowIso
     });
@@ -83,6 +85,7 @@ describe("news domain and normalization", () => {
     const country = normalizeGNewsCountryResponse({
       countryCode: "jp",
       countryName: "Japan",
+      language: "ja",
       payload: {
         articles: [
           { title: "", url: "https://example.com/empty" },
@@ -95,6 +98,7 @@ describe("news domain and normalization", () => {
     const empty = normalizeGNewsCountryResponse({
       countryCode: "fr",
       countryName: "France",
+      language: "en",
       payload: { articles: [] },
       nowIso
     });
@@ -109,6 +113,7 @@ describe("news domain and normalization", () => {
       normalizeGNewsCountryResponse({
         countryCode: "us",
         countryName: "United States",
+        language: "en",
         payload: { notArticles: [] },
         nowIso
       })

@@ -21,17 +21,18 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const readyNewsState: NewsState = {
+const readyNewsState = {
   status: "ready",
   snapshot: {
     provider: "GNews",
     category: "general",
-    language: "en",
+    language: "mixed",
     lastUpdated: "2026-05-21T00:00:00.000Z",
     countries: {
       us: {
         countryCode: "us",
         countryName: "United States",
+        language: "en",
         headlineCount: 1,
         articles: [
           {
@@ -48,12 +49,13 @@ const readyNewsState: NewsState = {
       jp: {
         countryCode: "jp",
         countryName: "Japan",
+        language: "ja",
         headlineCount: 0,
         articles: []
       }
     }
   }
-};
+} satisfies Extract<NewsState, { status: "ready" }>;
 
 describe("UI components", () => {
   it("supports keyboard search selection with a mocked service", async () => {
@@ -384,42 +386,48 @@ describe("UI components", () => {
           snapshot: {
             provider: "GNews",
             category: "general",
-            language: "en",
+            language: "mixed",
             lastUpdated: "2026-05-21T00:00:00.000Z",
             countries: {
               au: {
                 countryCode: "au",
                 countryName: "Australia",
+                language: "en",
                 headlineCount: 10,
                 articles: []
               },
               ca: {
                 countryCode: "ca",
                 countryName: "Canada",
+                language: "en",
                 headlineCount: 10,
                 articles: []
               },
               my: {
                 countryCode: "my",
                 countryName: "Malaysia",
+                language: "en",
                 headlineCount: 2,
                 articles: []
               },
               jp: {
                 countryCode: "jp",
                 countryName: "Japan",
+                language: "ja",
                 headlineCount: 0,
                 articles: []
               },
               us: {
                 countryCode: "us",
                 countryName: "United States",
+                language: "en",
                 headlineCount: 1,
                 articles: []
               },
               tw: {
                 countryCode: "tw",
                 countryName: "Taiwan",
+                language: "en",
                 headlineCount: 6,
                 articles: []
               }

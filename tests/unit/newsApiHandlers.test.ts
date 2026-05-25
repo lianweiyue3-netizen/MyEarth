@@ -26,12 +26,13 @@ import type { NewsSnapshot } from "../../src/news/newsTypes";
 const snapshot: NewsSnapshot = {
   provider: "GNews",
   category: "general",
-  language: "en",
+  language: "mixed",
   lastUpdated: "2026-05-21T00:00:00.000Z",
   countries: {
     us: {
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       headlineCount: 0,
       articles: []
     }

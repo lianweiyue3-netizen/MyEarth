@@ -23,6 +23,20 @@ describe("GNews provider adapter", () => {
     expect(url.searchParams.get("apikey")).toBe("secret-key");
   });
 
+  it("constructs Japanese top-headlines URLs for Japan", () => {
+    const url = new URL(
+      buildGNewsTopHeadlinesUrl("secret-key", {
+        countryCode: "jp",
+        category: "general",
+        language: "ja",
+        max: 10
+      })
+    );
+
+    expect(url.searchParams.get("country")).toBe("jp");
+    expect(url.searchParams.get("lang")).toBe("ja");
+  });
+
   it("fetches one country response with an injected fetcher", async () => {
     let requestedUrl: string | undefined;
     const fetcher = vi.fn(async (input) => {

@@ -3,6 +3,7 @@ import type { GNewsProvider } from "./gnewsProvider.js";
 import type { NewsCountryDefinition } from "./newsCountries.js";
 import type {
   NewsCountrySummary,
+  NewsLanguage,
   NewsSnapshot,
   NewsUnavailableReason
 } from "./newsTypes.js";
@@ -71,11 +72,13 @@ export async function refreshNewsSnapshot(options: {
 
     let countryIndex = 0;
     for (const country of options.countries) {
+      const language = getNewsLanguageForCountry(country.code);
+
       try {
         const payload = await options.provider.fetchTopHeadlines({
           countryCode: country.code,
           category: "general",
-          language: "en",
+          language,
           max: 10
         });
 
@@ -83,6 +86,7 @@ export async function refreshNewsSnapshot(options: {
           normalizeGNewsCountryResponse({
             countryCode: country.code,
             countryName: country.name,
+            language,
             payload,
             nowIso
           })
@@ -177,4 +181,8 @@ function isSameUtcDate(leftIso: string, rightIso: string): boolean {
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function getNewsLanguageForCountry(countryCode: string): NewsLanguage {
+  return countryCode.trim().toLowerCase() === "jp" ? "ja" : "en";
 }

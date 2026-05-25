@@ -1,6 +1,7 @@
 import {
   createNewsServiceError,
   NewsServiceError,
+  type NewsLanguage,
   type NewsUnavailableReason
 } from "./newsTypes.js";
 
@@ -13,7 +14,7 @@ export type GNewsProviderOptions = {
 export type GNewsCountryRequest = {
   countryCode: string;
   category: "general";
-  language: "en";
+  language: NewsLanguage;
   max: 10;
 };
 

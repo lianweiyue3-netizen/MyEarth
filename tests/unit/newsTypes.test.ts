@@ -16,12 +16,13 @@ import {
 const snapshot: NewsSnapshot = {
   provider: "GNews",
   category: "general",
-  language: "en",
+  language: "mixed",
   lastUpdated: "2026-05-21T00:00:00.000Z",
   countries: {
     us: {
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       headlineCount: 1,
       articles: [
         {
@@ -34,6 +35,13 @@ const snapshot: NewsSnapshot = {
           publishedAt: "2026-05-21T00:00:00.000Z"
         }
       ]
+    },
+    jp: {
+      countryCode: "jp",
+      countryName: "Japan",
+      language: "ja",
+      headlineCount: 0,
+      articles: []
     }
   }
 };
@@ -47,6 +55,8 @@ describe("news domain types", () => {
     };
 
     expect(isNewsApiResponse(response)).toBe(true);
+    expect(snapshot.language).toBe("mixed");
+    expect(snapshot.countries.jp.language).toBe("ja");
   });
 
   it("accepts unavailable API responses", () => {

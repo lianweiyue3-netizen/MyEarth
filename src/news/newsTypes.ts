@@ -1,5 +1,6 @@
 export type NewsProviderId = "GNews";
-export const NEWS_SNAPSHOT_SCHEMA_VERSION = 2;
+export const NEWS_SNAPSHOT_SCHEMA_VERSION = 3;
+export type NewsLanguage = "en" | "ja";
 
 export type NewsArticle = {
   id: string;
@@ -14,6 +15,7 @@ export type NewsArticle = {
 export type NewsCountrySummary = {
   countryCode: string;
   countryName: string;
+  language: NewsLanguage;
   headlineCount: number;
   articles: NewsArticle[];
 };
@@ -22,7 +24,7 @@ export type NewsSnapshot = {
   schemaVersion?: typeof NEWS_SNAPSHOT_SCHEMA_VERSION;
   provider: NewsProviderId;
   category: "general";
-  language: "en";
+  language: "mixed";
   lastUpdated: string;
   countries: Record<string, NewsCountrySummary>;
 };
@@ -167,7 +169,7 @@ export function isNewsSnapshot(value: unknown): value is NewsSnapshot {
     (value.schemaVersion === undefined ||
       value.schemaVersion === NEWS_SNAPSHOT_SCHEMA_VERSION) &&
     value.category === "general" &&
-    value.language === "en" &&
+    value.language === "mixed" &&
     isIsoTimestamp(value.lastUpdated) &&
     isCountryRecord(value.countries)
   );
@@ -197,6 +199,7 @@ function isNewsCountrySummary(value: unknown): value is NewsCountrySummary {
     isCountryCode(value.countryCode) &&
     typeof value.countryName === "string" &&
     value.countryName.trim().length > 0 &&
+    isNewsLanguage(value.language) &&
     Number.isInteger(headlineCount) &&
     typeof headlineCount === "number" &&
     headlineCount >= 0 &&
@@ -259,6 +262,10 @@ function isHttpUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+function isNewsLanguage(value: unknown): value is NewsLanguage {
+  return value === "en" || value === "ja";
 }
 
 export function isCountryCode(value: unknown): value is string {

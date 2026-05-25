@@ -15,7 +15,7 @@ function createSnapshot(counts: Record<string, number>): NewsSnapshot {
   return {
     provider: "GNews",
     category: "general",
-    language: "en",
+    language: "mixed",
     lastUpdated: "2026-05-21T00:00:00.000Z",
     countries: Object.fromEntries(
       Object.entries(counts).map(([countryCode, headlineCount]) => [
@@ -23,6 +23,7 @@ function createSnapshot(counts: Record<string, number>): NewsSnapshot {
         {
           countryCode,
           countryName: countryCode.toUpperCase(),
+          language: countryCode === "jp" ? "ja" : "en",
           headlineCount,
           articles: []
         }

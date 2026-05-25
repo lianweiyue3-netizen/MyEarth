@@ -21,6 +21,12 @@ const countries: readonly NewsCountryDefinition[] = [
     cameraHeightMeters: 5_000_000
   },
   {
+    code: "jp",
+    name: "Japan",
+    centroid: { latitude: 36, longitude: 138 },
+    cameraHeightMeters: 2_800_000
+  },
+  {
     code: "gb",
     name: "United Kingdom",
     centroid: { latitude: 55, longitude: -3 },
@@ -34,12 +40,13 @@ const staleSnapshot: NewsSnapshot = {
   schemaVersion: NEWS_SNAPSHOT_SCHEMA_VERSION,
   provider: "GNews",
   category: "general",
-  language: "en",
+  language: "mixed",
   lastUpdated: "2026-05-20T12:00:00.000Z",
   countries: {
     us: {
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       headlineCount: 0,
       articles: []
     }
@@ -97,10 +104,22 @@ describe("news refresh service", () => {
       now
     });
 
-    expect(result).toMatchObject({ status: "refreshed", countryCount: 2 });
-    expect(provider.fetchTopHeadlines).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ status: "refreshed", countryCount: 3 });
+    expect(provider.fetchTopHeadlines).toHaveBeenCalledTimes(3);
     expect(provider.fetchTopHeadlines).toHaveBeenNthCalledWith(1, {
       countryCode: "us",
+      category: "general",
+      language: "en",
+      max: 10
+    });
+    expect(provider.fetchTopHeadlines).toHaveBeenNthCalledWith(2, {
+      countryCode: "jp",
+      category: "general",
+      language: "ja",
+      max: 10
+    });
+    expect(provider.fetchTopHeadlines).toHaveBeenNthCalledWith(3, {
+      countryCode: "gb",
       category: "general",
       language: "en",
       max: 10
@@ -108,6 +127,7 @@ describe("news refresh service", () => {
 
     const record = await cache.getSnapshot();
     expect(record?.snapshot.countries.us.headlineCount).toBe(1);
+    expect(record?.snapshot.countries.jp.language).toBe("ja");
     expect(record?.snapshot.countries.gb.headlineCount).toBe(0);
     await expect(cache.getMetadata()).resolves.toEqual({
       status: "idle",
@@ -135,8 +155,10 @@ describe("news refresh service", () => {
 
   it("refreshes same-day cache when the snapshot schema is old", async () => {
     const cache = createNewsCacheRepository(new MemoryKvClient());
-    const oldSnapshot = { ...staleSnapshot };
-    delete oldSnapshot.schemaVersion;
+    const oldSnapshot = {
+      ...staleSnapshot,
+      schemaVersion: 2
+    } as unknown as NewsSnapshot;
     await cache.setSnapshot({
       snapshot: {
         ...oldSnapshot,
@@ -149,7 +171,7 @@ describe("news refresh service", () => {
     await expect(
       refreshNewsSnapshot({ provider, cache, countries, now })
     ).resolves.toMatchObject({ status: "refreshed" });
-    expect(provider.fetchTopHeadlines).toHaveBeenCalledTimes(2);
+    expect(provider.fetchTopHeadlines).toHaveBeenCalledTimes(3);
   });
 
   it("skips when another refresh holds the lock", async () => {

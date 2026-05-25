@@ -12,6 +12,7 @@ describe("news normalizer", () => {
     const summary = normalizeGNewsCountryResponse({
       countryCode: "US",
       countryName: " United States ",
+      language: "en",
       nowIso,
       payload: {
         totalArticles: 1,
@@ -35,6 +36,7 @@ describe("news normalizer", () => {
     expect(summary).toEqual({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       headlineCount: 1,
       articles: [
         {
@@ -56,6 +58,7 @@ describe("news normalizer", () => {
     const summary = normalizeGNewsCountryResponse({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       nowIso,
       payload: {
         articles: [
@@ -101,6 +104,7 @@ describe("news normalizer", () => {
     const summary = normalizeGNewsCountryResponse({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       nowIso,
       payload
     });
@@ -114,6 +118,7 @@ describe("news normalizer", () => {
     const summary = normalizeGNewsCountryResponse({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       nowIso,
       payload: { totalArticles: 0, articles: [] }
     });
@@ -121,6 +126,7 @@ describe("news normalizer", () => {
     expect(summary).toEqual({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       headlineCount: 0,
       articles: []
     });
@@ -131,6 +137,7 @@ describe("news normalizer", () => {
       normalizeGNewsCountryResponse({
         countryCode: "us",
         countryName: "United States",
+        language: "en",
         nowIso,
         payload: { totalArticles: 1 }
       })
@@ -140,6 +147,7 @@ describe("news normalizer", () => {
       normalizeGNewsCountryResponse({
         countryCode: "usa",
         countryName: "United States",
+        language: "en",
         nowIso,
         payload: { articles: [] }
       })
@@ -149,6 +157,7 @@ describe("news normalizer", () => {
       normalizeGNewsCountryResponse({
         countryCode: "us",
         countryName: "United States",
+        language: "en",
         nowIso: "today",
         payload: { articles: [] }
       })
@@ -159,12 +168,14 @@ describe("news normalizer", () => {
     const us = normalizeGNewsCountryResponse({
       countryCode: "us",
       countryName: "United States",
+      language: "en",
       nowIso,
       payload: { articles: [] }
     });
     const gb = normalizeGNewsCountryResponse({
       countryCode: "gb",
       countryName: "United Kingdom",
+      language: "en",
       nowIso,
       payload: { articles: [] }
     });
@@ -177,7 +188,7 @@ describe("news normalizer", () => {
     expect(snapshot).toMatchObject({
       provider: "GNews",
       category: "general",
-      language: "en",
+      language: "mixed",
       lastUpdated: nowIso
     });
     expect(Object.keys(snapshot.countries)).toEqual(["us", "gb"]);
